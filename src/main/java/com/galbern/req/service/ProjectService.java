@@ -1,6 +1,6 @@
 package com.galbern.req.service;
 
-import com.galbern.req.domain.Project;
+import com.galbern.req.jpa.entities.Project;
 
 import java.util.Set;
 

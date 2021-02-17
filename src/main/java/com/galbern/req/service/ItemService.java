@@ -1,11 +1,10 @@
 package com.galbern.req.service;
 
-import com.galbern.req.domain.Item;
-import com.galbern.req.domain.Project;
-import com.galbern.req.domain.Stage;
+import com.galbern.req.jpa.entities.Item;
+import com.galbern.req.jpa.entities.Project;
+import com.galbern.req.jpa.entities.Stage;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 
