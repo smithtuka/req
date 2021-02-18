@@ -30,7 +30,7 @@ public class MailService {
             result=emailUtils.sendSimpleGmail(subject, body, recipients, isMultipart);
         } catch (Exception e){
             LOGGER.error("[GMAIL-FAILURE]error sending Gmail, ", e);
-//            sendGalbernMail( new MessagingException(),  subject,  body,  recipients, isMultipart);
+            sendGcwMail( new MessagingException(),  subject,  body,  recipients, isMultipart);
         }
         return result;
     }
