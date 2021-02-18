@@ -1,8 +1,8 @@
 package com.galbern.req.jpa.entities;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,7 +38,7 @@ public class Project implements Serializable {
     private User customer;
 
     @OneToMany(mappedBy="project", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonBackReference
+    @JsonManagedReference
     private Set<Stage> stages;
 
     @OneToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)

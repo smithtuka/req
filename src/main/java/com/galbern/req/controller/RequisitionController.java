@@ -32,8 +32,26 @@ public class RequisitionController {
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
     })
     @GetMapping("/ping")
-    public String ping(){
-        return "ping";
+    public String ping(@RequestParam(value="echo", required = false) String echo){
+        return "ping pong!\n\t"+echo;
+    }
+
+    @ApiOperation(value = "makeRequisition", nickname = "makeRequisition", notes = "use to create a requisition")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS", response = Requisition.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = Requisition.class)
+    })
+    @PostMapping
+    public @ResponseBody ResponseEntity<Requisition> makeRequisition(@RequestBody Requisition requisition){
+
+        try {
+            LOGGER.debug("creating a requisition by", requisition.getRequester().getId());
+            return new ResponseEntity<>(requisitionBO.createRequisition(requisition), HttpStatus.OK);
+        } catch (Exception e){
+            LOGGER.error("[REQUISITION-CREATION-FAILURE]- failed to create requisition", e);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
     @ApiOperation(value = "findRequisitionById", nickname = "requisitions",

@@ -1,13 +1,12 @@
 package com.galbern.req.jpa.entities;
 
-import com.fasterxml.jackson.annotation.*;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -36,7 +35,7 @@ public class Stage {
     private LocalDate plannedEndDate;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonBackReference
     private Project project;
 
     @OneToMany(mappedBy = "stage", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
