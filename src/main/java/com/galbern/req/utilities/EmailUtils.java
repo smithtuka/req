@@ -1,19 +1,20 @@
 package com.galbern.req.utilities;
 
-import java.util.List;
-import java.util.Properties;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.mail.PasswordAuthentication;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 
@@ -28,10 +29,14 @@ public class EmailUtils {
     private  static final String gmailHost = "smtp.gmail.com"; // set this up for gmail
     @Value("${mailer.secret}")
     private String secret;
+    private AtomicReference<MimeMessage> message1= new AtomicReference<>();
 
 
 
-    public void sendSimpleGmail(String subjectText, String messageText, List<String> recipientEmails) {
+    public String sendSimpleGmail(String subjectText,
+                                  String messageText,
+                                  List<String> recipientEmails,
+                                  boolean isMultipart) {
         LOGGER.info("sendGMail - entering");
 
         // Get system properties
@@ -58,24 +63,28 @@ public class EmailUtils {
             recipientEmails.add(defaultRecipientEmail);
             recipientEmails.forEach(mailAddress -> {
                 try {
-
                     message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailAddress));
+                    if(isMultipart) sendMultipartMail(message,
+                            new File("/Users/smithtuka/Documents/Projects/req/src/main/resources/data.txt"),
+                            messageText);
                 } catch (MessagingException e) {
-                    LOGGER.debug("failure to set recipient address  ", e);
+                    LOGGER.debug("[GMAIL-FAILURE] failure to set recipient address  ", e);
                 }
             });
-
             message.setSubject(subjectText);
             message.setText(messageText);
             Transport.send(message);
             LOGGER.info("Sent from Gmail messages successfully....");
         } catch (MessagingException mex) {
-            LOGGER.error("GMail dispatch failure for {} ", recipientEmails, mex);
-            mex.printStackTrace();
+            LOGGER.error("[GMAIL-FAILURE] - dispatch failure for {} ", recipientEmails, mex);
+            return "failed";
         }
+        return "success";
     }
 
-    public void sendSimpleGalbernMail(String subjectText, String messageText, List<String> recipientMails){
+    public String sendSimpleGcwMail(String subjectText, String messageText,
+                                        List<String> recipientMails,
+                                        boolean isMultipart) throws MessagingException, IOException {
         Properties properties = System.getProperties();
         // Setup Galbern server
         properties.put("mail.host", mailHost);
@@ -92,28 +101,61 @@ public class EmailUtils {
         });
 
         session.setDebug(true);
-
         try {
             MimeMessage message = new MimeMessage(session);
+            message.setSubject(subjectText);
             message.setFrom(new InternetAddress(defaultFromEmail));
             recipientMails.add(defaultRecipientEmail);
             recipientMails.forEach(mailAddress -> {
                 try {
-
                     message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailAddress));
+                    message1.set(message);
+                    if(isMultipart) sendMultipartMail(message,
+                            new File("/Users/smithtuka/Documents/Projects/req/src/main/resources/data.txt"),
+                            messageText);
                 } catch (MessagingException e) {
                     LOGGER.debug("failure to set recipient address  in GalbernMail", e);
                 }
             });
-
-            message.setSubject(subjectText);
             message.setText(messageText);
             Transport.send(message);
-            LOGGER.info("Sent Messages from Galbern Mail successfully....");
         } catch (MessagingException mex) {
-            LOGGER.error("GalbernMail dispatch failure for {} ", recipientMails, mex);
-            mex.printStackTrace();
+            LOGGER.error("[GCW-MAIL-FAILURE] GCW Mail dispatch failed to send for {} ", message1.get().getContent().toString(), recipientMails, mex);
+            return "failed";
+        }
+        return "success";
+    }
+
+         public String sendMultipartMail(MimeMessage message, File file, String textMessage) {
+
+            try {
+                Multipart multipart = new MimeMultipart();
+                MimeBodyPart attachmentPart = new MimeBodyPart();
+                MimeBodyPart textPart = new MimeBodyPart();
+
+                try {
+                    File f = file;
+                    attachmentPart.attachFile(f);
+                    textPart.setText(textMessage); // might pick from mime already
+
+                    multipart.addBodyPart(textPart);
+                    multipart.addBodyPart(attachmentPart);
+
+                } catch (IOException e) {
+                    LOGGER.error("[MULTIPART-EMAIL-FAILURE] - exception sending multipart email", e);
+                }
+
+                message.setContent(multipart);
+                LOGGER.debug("sending multi-part");
+                Transport.send(message);
+            } catch (MessagingException mex) {
+                LOGGER.error("[MULTIPART-EMAIL-FAILURE] - exception sending multipart email", mex);
+                return "failed";
+            }
+            LOGGER.info("successfully sent multi-part mail");
+            return "success";
+
         }
 
-    }
+
 }

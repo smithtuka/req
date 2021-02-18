@@ -1,6 +1,6 @@
 package com.galbern.req.controller;
 
-import com.galbern.req.utilities.MailSender;
+import com.galbern.req.service.BO.MailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.mail.MessagingException;
 import java.util.List;
 
 @RestController
@@ -17,22 +18,21 @@ import java.util.List;
 public class MailController {
     private static Logger LOGGER = LoggerFactory.getLogger(MailController.class);
     @Autowired
-    private MailSender mailAgent;
+    private MailService mailAgent;
 
     @GetMapping
     public String sendMail(@RequestParam(value="subject") String subject,
                            @RequestParam(value="body") String body,
+                           @RequestParam(value="isMultipart") boolean isMultipart,
                            @RequestParam(value="recipient") List<String> recipients) throws RuntimeException{
         LOGGER.info("entering mail controller");
-    try{
-        LOGGER.info("entering try in controller");
-         mailAgent.sendMail(subject, body, recipients);
-        return "success";
-
-    }catch (RuntimeException ex){
-        LOGGER.debug("EXCEPTION MAILING", ex);
-    }
-        LOGGER.info("failed mail controller");
-    return HttpStatus.INTERNAL_SERVER_ERROR.toString();
+        try {
+            LOGGER.info("entering try in mail controller");
+            mailAgent.sendGcwMail(new Exception(""), subject, body, recipients, isMultipart);
+            return "success";
+        } catch (RuntimeException | MessagingException ex) {
+            LOGGER.debug("EXCEPTION MAILING", ex);
+        }
+        return HttpStatus.INTERNAL_SERVER_ERROR.toString();
     }
 }
