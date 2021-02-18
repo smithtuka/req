@@ -1,5 +1,6 @@
 package com.galbern.req.config;
 
+import com.galbern.req.constants.RmsConstants;
 import io.swagger.annotations.Api;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,8 +28,7 @@ import java.util.ArrayList;
 @EnableSwagger2
 public class SwaggerConfig {
 
-    private static final String RMS_SERVICE = "RMSService";
-    private static final String GCW_URL = "www.galbern.com";
+
     @Bean
     public Docket api() {
 
@@ -42,16 +42,16 @@ public class SwaggerConfig {
         java.util.List<Parameter> aParameters = new ArrayList<>();
         aParameters.add(aParameterBuilder.build());
 
-        Contact contact = new Contact(RMS_SERVICE, GCW_URL, "info@galbern.com>");
+        Contact contact = new Contact(RmsConstants.APP_NAME, RmsConstants.URL, "info@galbern.com>");
 
         return new Docket(DocumentationType.SWAGGER_2)
                 .directModelSubstitute(XMLGregorianCalendar.class, String.class)
                 .select()
-                .apis(RequestHandlerSelectors.any())//RequestHandlerSelectors.withClassAnnotation(Api.class)
+                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))//RequestHandlerSelectors.any()
                 .paths(PathSelectors.ant("/**")) // PathSelectors.any()
                 .build()
                 .apiInfo(
-                        new ApiInfo(RMS_SERVICE, RMS_SERVICE, "v1", GCW_URL, contact, "", "", new ArrayList<>()))
+                        new ApiInfo(RmsConstants.APP_NAME, RmsConstants.APP_NAME, "v1", RmsConstants.URL, contact, "", "", new ArrayList<>()))
                 .globalOperationParameters(aParameters);
     }
 

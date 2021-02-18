@@ -20,7 +20,6 @@ import java.io.Serializable;
 @DynamicUpdate
 @DynamicInsert
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Builder
 public class User extends Person implements Serializable { // class of composite Ids must implement serializable public static final Long serialVersionUID = 1l;
 
     @Id

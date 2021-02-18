@@ -23,7 +23,6 @@ import java.util.List;
 @DynamicUpdate
 @DynamicInsert
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Builder
 public class Stage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

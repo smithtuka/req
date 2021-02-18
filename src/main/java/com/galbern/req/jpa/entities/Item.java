@@ -18,7 +18,6 @@ import java.util.Objects;
 @DynamicUpdate
 @DynamicInsert
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Builder
 public class Item {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

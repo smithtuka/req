@@ -21,7 +21,6 @@ import java.io.Serializable;
 @DynamicUpdate
 @DynamicInsert
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Builder
 public class Person implements Serializable {
 
 

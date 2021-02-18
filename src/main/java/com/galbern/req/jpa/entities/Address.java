@@ -19,7 +19,6 @@ import java.io.Serializable;
 @DynamicUpdate
 @DynamicInsert
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Builder
 public class Address implements Serializable {
 
     @Id
