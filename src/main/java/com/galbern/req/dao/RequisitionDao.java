@@ -11,11 +11,9 @@ import java.util.List;
 
 @Repository
 public interface RequisitionDao extends JpaRepository<Requisition, Long> {
-    @Query("select r from Requisition  r where r.stage.id in ( ?1)")
-    List<Requisition> findRequisitionsByStageIds(List<Long> stageIds);
-    @Query("select r from Requisition  r where r.requester.id in ( ?1)")
-    List<Requisition> findRequisitionsByRequesterId(List<Long> requesterIds);
+    List<Requisition> findRequisitionsByStageIdIn(List<Long> stageIds);
+    List<Requisition> findRequisitionsByStageProjectIdIn(List<Long> projectIds);
+    List<Requisition> findRequisitionsByRequesterIdIn(List<Long> requesterIds);
     List<Requisition> findRequisitionsByApprovalStatus(ApprovalStatus approvalStatus);
-    @Query("select r from Requisition  r where r.requestDate > ( ?1)")
     List<Requisition> findRequisitionsByRequestDate(LocalDate submissionDate);
 }

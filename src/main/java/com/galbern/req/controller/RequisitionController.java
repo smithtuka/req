@@ -1,5 +1,6 @@
 package com.galbern.req.controller;
 
+import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
 import com.galbern.req.service.BO.RequisitionBO;
@@ -35,13 +36,19 @@ public class RequisitionController {
         return "ping";
     }
 
+    @ApiOperation(value = "findRequisitionById", nickname = "requisitions",
+            notes = "to fetch a single requisitions by Id")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS", response = Requisition.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
+    })
     @GetMapping("/{requisitionId}")
     public ResponseEntity<Requisition> findRequisitionById(@PathVariable("requisitionId") Long requisitionId){
         try{
             LOGGER.info("entering findRequisitionById in {}", this.getClass().getName());
             return new ResponseEntity<>(requisitionBO.findRequisitionById(requisitionId), HttpStatus.OK);
         } catch (RuntimeException ex){
-            LOGGER.error("error executing findRequisitionById", ex);
+            LOGGER.error("error executing findRequisitionById in handler", ex);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -63,12 +70,45 @@ public class RequisitionController {
         try{
             LOGGER.info("entering findRequisitions - GENERAL in {}", this.getClass().getName());
             return new ResponseEntity<>(requisitionBO.findRequisitions(stageIds, projectIds, requesterIds, approvalStatus, submissionDate), HttpStatus.OK);
-        } catch (RuntimeException ex){
-            LOGGER.error("error executing findRequisitions - GENERAL", ex);
+        } catch (RequisitionExecutionException ex){
+            LOGGER.error("error executing findRequisitions - GENERAL in handler", ex);
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @ApiOperation(value = "deleteRequisition", nickname = "delete",
+            notes = "to delete a single requisitions by Id")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS", response = String.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
+    })
+    @DeleteMapping("/{requisitionId}")
+    public ResponseEntity<String> deleteRequisition(@PathVariable("requisitionId") Long requisitionId){
+        try{
+            LOGGER.info("entering deleteRequisition in {}", this.getClass().getName());
+            return new ResponseEntity<>(requisitionBO.deleteRequisition(requisitionId), HttpStatus.OK);
+        } catch (RequisitionExecutionException ex){
+            LOGGER.error("error executing deleteRequisition in handler", ex);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ApiOperation(value = "updateRequisition", nickname = "update",
+            notes = "to update a requisitions")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS", response = Requisition.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
+    })
+    @PutMapping
+    public ResponseEntity<Requisition> updateRequisition(@RequestBody Requisition requisition){
+        try{
+            LOGGER.info("entering updateRequisition in {}", this.getClass().getName());
+            return new ResponseEntity<>(requisitionBO.updateRequisition(requisition), HttpStatus.OK);
+        } catch (RequisitionExecutionException ex){
+            LOGGER.error("error updateRequisition in handler", ex);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 
 

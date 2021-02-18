@@ -11,6 +11,8 @@ import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.mail.PasswordAuthentication;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,6 +26,8 @@ public class EmailUtils {
     private  static final String defaultFromEmail = "info@galbern.com";
     private  static final String mailHost = "mail.galbern.com"; // set this up for galbern
     private  static final String gmailHost = "smtp.gmail.com"; // set this up for gmail
+    @Value("${mailer.secret}")
+    private String secret;
 
 
 
@@ -41,7 +45,7 @@ public class EmailUtils {
         // Get the default Session object.
         Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("rms.galbern", "1982galbern");
+                return new PasswordAuthentication("rms.galbern", secret);
             }
         });
 
@@ -82,7 +86,7 @@ public class EmailUtils {
 //        Session session = Session.getDefaultInstance(properties);
         Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("info@galbern.com", "1982galbern");
+                return new PasswordAuthentication("info@galbern.com", secret);
             }
 
         });

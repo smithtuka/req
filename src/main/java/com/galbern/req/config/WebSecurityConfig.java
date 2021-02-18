@@ -1,4 +1,4 @@
-package com.galbern.req.security;/*
+package com.galbern.req.config;/*
 package com.galbern.req.security;
 
 import org.springframework.context.annotation.Bean;

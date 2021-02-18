@@ -7,7 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.Calendar;
 
 
 @SpringBootApplication
@@ -25,6 +28,11 @@ public class ReqApplication {
 	public Hibernate5Module hibernate5Module()
 	{
 		return new Hibernate5Module();
+	}
+
+	@Scheduled(cron = "1/5 1/1 * * * ?")
+	public void logMessage(){
+		System.out.println("[GCW-RMS LIVE] "  + Calendar.getInstance().getTime());
 	}
 
 }

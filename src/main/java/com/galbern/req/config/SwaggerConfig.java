@@ -47,8 +47,8 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .directModelSubstitute(XMLGregorianCalendar.class, String.class)
                 .select()
-                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))//RequestHandlerSelectors.any()
-                .paths(PathSelectors.ant("/**")) // PathSelectors.any()
+                .apis(RequestHandlerSelectors.any()) //RRequestHandlerSelectors.withClassAnnotation(Api.class)
+                .paths(PathSelectors.any()) // PathSelectors.ant("/**")
                 .build()
                 .apiInfo(
                         new ApiInfo(RmsConstants.APP_NAME, RmsConstants.APP_NAME, "v1", RmsConstants.URL, contact, "", "", new ArrayList<>()))
