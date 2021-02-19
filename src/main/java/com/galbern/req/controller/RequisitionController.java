@@ -4,6 +4,7 @@ import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
 import com.galbern.req.service.BO.RequisitionBO;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Api(value = "controller for RMS service version v1", tags={"RMSV1Controller"})
 @RestController
 @RequestMapping("/v1/requisitions")
 public class RequisitionController {
@@ -33,6 +35,7 @@ public class RequisitionController {
     })
     @GetMapping("/ping")
     public String ping(@RequestParam(value="echo", required = false) String echo){
+        LOGGER.info("GET /v1/requisitions in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
         return "ping pong!\n\t"+echo;
     }
 
@@ -45,7 +48,7 @@ public class RequisitionController {
     public @ResponseBody ResponseEntity<Requisition> makeRequisition(@RequestBody Requisition requisition){
 
         try {
-            LOGGER.debug("creating a requisition by", requisition.getRequester().getId());
+            LOGGER.info("POST /v1/requisitions in {}", requisition.getRequester().getId());
             return new ResponseEntity<>(requisitionBO.createRequisition(requisition), HttpStatus.OK);
         } catch (Exception e){
             LOGGER.error("[REQUISITION-CREATION-FAILURE]- failed to create requisition", e);
@@ -63,7 +66,7 @@ public class RequisitionController {
     @GetMapping("/{requisitionId}")
     public ResponseEntity<Requisition> findRequisitionById(@PathVariable("requisitionId") Long requisitionId){
         try{
-            LOGGER.info("entering findRequisitionById in {}", this.getClass().getName());
+            LOGGER.info("GET /v1/requisitions {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(requisitionBO.findRequisitionById(requisitionId), HttpStatus.OK);
         } catch (RuntimeException ex){
             LOGGER.error("error executing findRequisitionById in handler", ex);
@@ -86,7 +89,7 @@ public class RequisitionController {
             @RequestParam(value = "submissionDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate submissionDate
             ){
         try{
-            LOGGER.info("entering findRequisitions - GENERAL in {}", this.getClass().getName());
+            LOGGER.info("GET /v1/requisitions {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(requisitionBO.findRequisitions(stageIds, projectIds, requesterIds, approvalStatus, submissionDate), HttpStatus.OK);
         } catch (RequisitionExecutionException ex){
             LOGGER.error("error executing findRequisitions - GENERAL in handler", ex);
@@ -103,7 +106,7 @@ public class RequisitionController {
     @DeleteMapping("/{requisitionId}")
     public ResponseEntity<String> deleteRequisition(@PathVariable("requisitionId") Long requisitionId){
         try{
-            LOGGER.info("entering deleteRequisition in {}", this.getClass().getName());
+            LOGGER.info("DELETE /v1/requisitions in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(requisitionBO.deleteRequisition(requisitionId), HttpStatus.OK);
         } catch (RequisitionExecutionException ex){
             LOGGER.error("error executing deleteRequisition in handler", ex);
@@ -120,15 +123,13 @@ public class RequisitionController {
     @PutMapping
     public ResponseEntity<Requisition> updateRequisition(@RequestBody Requisition requisition){
         try{
-            LOGGER.info("entering updateRequisition in {}", this.getClass().getName());
+            LOGGER.info("PUT /v1/requisitions in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(requisitionBO.updateRequisition(requisition), HttpStatus.OK);
         } catch (RequisitionExecutionException ex){
             LOGGER.error("error updateRequisition in handler", ex);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-
 
 
 }

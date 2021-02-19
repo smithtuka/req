@@ -32,11 +32,11 @@ public class Requisition {
     @OneToOne
     private User requester;
 
-    @ManyToOne(fetch = FetchType.LAZY) // LAZY
+    @ManyToOne(fetch = FetchType.LAZY)
     private Stage stage;
 
     @OneToMany(mappedBy = "requisition", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Item> items; // LAZY
+    private List<Item> items;
 
     @Enumerated(EnumType.STRING)
     private ApprovalStatus approvalStatus;
