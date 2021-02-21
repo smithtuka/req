@@ -1,58 +1,41 @@
-//package com.galbern.req.config;
-//
-//import org.hibernate.SessionFactory;
-//import org.hibernate.boot.SessionFactoryBuilder;
-//import org.springframework.boot.jdbc.DataSourceBuilder;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.orm.hibernate5.HibernateTransactionManager;
-//import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-//import org.springframework.transaction.PlatformTransactionManager;
-//import org.springframework.transaction.annotation.EnableTransactionManagement;
-//
-//import javax.sql.DataSource;
-//import java.util.Properties;
-//
-//@Configuration
-//@EnableTransactionManagement
-//public class HibernateConf {
-//
-//    @Bean
-//    public LocalSessionFactoryBean sessionFactory() {
-//        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-//        sessionFactory.setDataSource(getDataSource());
-//        sessionFactory.setPackagesToScan(
-//                "com.galbern.req.jpa.entities" );
-//        sessionFactory.setHibernateProperties(hibernateProperties());
-//
-//        return sessionFactory;
-//    }
-//
-//    @Bean
-//    public DataSource getDataSource() {
-//        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-//        dataSourceBuilder.driverClassName("org.h2.Driver");
-//        dataSourceBuilder.url("jdbc:h2:mem:test");
-//        dataSourceBuilder.username("sa");
-//        dataSourceBuilder.password("");
-//        return dataSourceBuilder.build();
-//    }
-//
-//
-//    @Bean
-//    public PlatformTransactionManager hibernateTransactionManager() {
-//        HibernateTransactionManager transactionManager
-//                = new HibernateTransactionManager();
-//        transactionManager.setSessionFactory(sessionFactory().getObject());
-//        return transactionManager;
-//    }
-//
-//    private final Properties hibernateProperties() {
-//        Properties hibernateProperties = new Properties();
-//        hibernateProperties.setProperty(
-//                "hibernate.hbm2ddl.auto", "create-drop");
-//        hibernateProperties.setProperty(
-//                "hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-//        return hibernateProperties;
-//    }
-//}
+package com.galbern.req.config;
+
+import org.hibernate.EmptyInterceptor;
+import org.hibernate.type.Type;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
+
+public class HibernateConf extends EmptyInterceptor implements Serializable { // custom entity interceptor
+
+    public boolean onSave(
+            final Object entity, final Serializable id, final Object[] state, final String[] propertyNames,
+            final Type[] types) {
+        if (types != null) {
+            for (int i = 0; i < types.length; i++) {
+                if (types[i].isCollectionType()) {
+                    String propertyName = propertyNames[i];
+                    propertyName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
+                    try {
+                        Method method = entity.getClass().getMethod("get" + propertyName);
+                        List<Object> objectList = (List<Object>) method.invoke(entity);
+                        System.out.println("--HIBERNATE CUSTOM INTERCEPTOR ---");
+                        if (objectList != null) {
+                            for (Object object : objectList) {
+                                String entityName = entity.getClass().getSimpleName();
+                                Method eachMethod = object.getClass().getMethod("set" + entityName, entity.getClass());
+                                eachMethod.invoke(object, entity);
+                            }
+                        }
+
+                    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+}

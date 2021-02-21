@@ -31,7 +31,6 @@ public class ItemServiceBO {
             LOGGER.error("[SAVE-ITEM-FAILURE]- failed to save an item : {}", new Gson().toJson(item).replaceAll("[\n\r]+", ""));
         }
         return item;
-
     }
 
 
@@ -64,7 +63,6 @@ public class ItemServiceBO {
         return item;
     }
 
-
     @Retryable(value = {DataAccessResourceFailureException.class, TransactionSystemException.class, CannotCreateTransactionException.class},
             maxAttempts = 2, backoff = @Backoff(delay = 500))
     public void deleteItem(Long id) {
@@ -82,16 +80,15 @@ public class ItemServiceBO {
         List<Item> items;
         try {
             if (null != requisitionId) items = itemDao.findItemsByRequisitionId(requisitionId);
-            else if (null == stageId) items = itemDao.findItemsByRequisitionStageId(stageId);
+            else if (null != stageId) items = itemDao.findItemsByRequisitionStageId(stageId);
             else if (null != projectId) items = itemDao.findItemsByRequisitionStageProjectId(projectId);
-            else if(null != requesterId)items = itemDao.findItemsByRequisitionRequesterId(requesterId);
+            else if (null != requesterId) items = itemDao.findItemsByRequisitionRequesterId(requesterId);
             else items = (List<Item>) itemDao.findAll();
         } catch (Exception e) {
             LOGGER.error("[FIND-ITEMS-FAILURE]- could not find items");
             throw e;
         }
         return items;
-
 
     }
 }

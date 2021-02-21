@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -34,11 +36,12 @@ public class Project implements Serializable {
     private Boolean isActive;
 
     @OneToOne
-    @JoinColumn(name="customer")
+    @JoinColumn(name="customer_id")
     private User customer;
 
     @OneToMany(mappedBy="project", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonManagedReference
+//    @JsonManagedReference
+    @Fetch(FetchMode.JOIN)
     private Set<Stage> stages;
 
     @OneToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
@@ -47,6 +50,7 @@ public class Project implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Column(name = "approver_id")
+    @Fetch(FetchMode.JOIN)
     List<User> approvers;
 
 }

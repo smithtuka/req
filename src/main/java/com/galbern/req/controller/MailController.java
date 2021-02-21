@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.mail.MessagingException;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,14 +25,14 @@ public class MailController {
     @GetMapping
     public String sendMail(@RequestParam(value="subject") String subject,
                            @RequestParam(value="body") String body,
-                           @RequestParam(value="isMultipart") boolean isMultipart,
+                           @RequestParam(value="file") File file,
                            @RequestParam(value="recipient") List<String> recipients) throws RuntimeException{
         LOGGER.info("entering mail controller");
         try {
             LOGGER.info("entering try in mail controller");
-            mailAgent.sendGcwMail(new Exception(""), subject, body, recipients, isMultipart);
+            mailAgent.sendGcwMail(subject, body, recipients, file);
             return "success";
-        } catch (RuntimeException | MessagingException ex) {
+        } catch (RuntimeException | MessagingException | IOException ex) {
             LOGGER.debug("EXCEPTION MAILING", ex);
         }
         return HttpStatus.INTERNAL_SERVER_ERROR.toString();

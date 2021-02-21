@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 @Service
-public class ProjectServiceImpl implements ProjectService {
+public class ProjectServiceBO implements ProjectService {
     @Override
     public Project addProject(Project p) {
         return null;

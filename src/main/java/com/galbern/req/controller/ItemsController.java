@@ -20,9 +20,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/items")
 public class ItemsController {
+
     @Autowired
     private ItemServiceBO itemServiceBO;
-
     public static Logger LOGGER = LoggerFactory.getLogger(ItemsController.class);
 
 
@@ -48,7 +48,7 @@ public class ItemsController {
     ResponseEntity<Item> makeItem(@RequestBody Item item){
 
         try {
-            LOGGER.info("POST /v1/Items in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
+            LOGGER.info("POST /v1/items in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(itemServiceBO.createItem(item), HttpStatus.OK);
         } catch (Exception e){
             LOGGER.error("error - failed to create an item", e);
@@ -57,23 +57,6 @@ public class ItemsController {
 
     }
 
-
-//    @ApiOperation(value = "findItemByProjectId", nickname = "Items by Project",
-//            notes = "to fetch Items by projectId")
-//    @ApiResponses({
-//            @ApiResponse(code = 200, message = "SUCCESS", response = Item.class),
-//            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
-//    })
-//    @GetMapping
-//    public ResponseEntity<List<Item>> findItemsByProjectId(@RequestParam(value = "projectId") Long projectId){
-//        try{
-//            LOGGER.info("GET /v1/items {}", Thread.currentThread().getStackTrace()[1].getMethodName());
-//            return new ResponseEntity<>(itemServiceBO.findItemsByProjectId(projectId), HttpStatus.OK);
-//        } catch (RuntimeException ex){
-//            LOGGER.error("error executing findItemByProjectId", ex);
-//        }
-//        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
 
 
     @ApiOperation(value = "findItemById", nickname = "Items",

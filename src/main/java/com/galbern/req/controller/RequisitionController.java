@@ -4,6 +4,7 @@ import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
 import com.galbern.req.service.BO.RequisitionBO;
+import com.galbern.req.utilities.ExcelUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,17 +17,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Api(value = "controller for RMS service version v1", tags={"RMSV1Controller"})
 @RestController
 @RequestMapping("/v1/requisitions")
 public class RequisitionController {
+
     public static Logger LOGGER = LoggerFactory.getLogger(RequisitionController.class);
     @Autowired
     private RequisitionBO requisitionBO;
-
 
     @ApiOperation(value = "ping", nickname = "ping", notes = "to ping")
     @ApiResponses({
@@ -45,7 +46,7 @@ public class RequisitionController {
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = Requisition.class)
     })
     @PostMapping
-    public @ResponseBody ResponseEntity<Requisition> makeRequisition(@RequestBody Requisition requisition){
+    public ResponseEntity<Requisition> makeRequisition(@RequestBody Requisition requisition){
 
         try {
             LOGGER.info("POST /v1/requisitions in {}", requisition.getRequester().getId());
@@ -86,7 +87,7 @@ public class RequisitionController {
             @RequestParam(value = "projectId", required = false) List<Long> projectIds,
             @RequestParam(value = "requesterId ", required = false) List<Long> requesterIds,
             @RequestParam(value = "approvalStatus", required = false) ApprovalStatus approvalStatus,
-            @RequestParam(value = "submissionDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate submissionDate
+            @RequestParam(value = "submissionDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date submissionDate
             ){
         try{
             LOGGER.info("GET /v1/requisitions {}", Thread.currentThread().getStackTrace()[1].getMethodName());
