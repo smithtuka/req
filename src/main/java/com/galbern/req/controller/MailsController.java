@@ -17,8 +17,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/mail")
-public class MailController {
-    private static Logger LOGGER = LoggerFactory.getLogger(MailController.class);
+public class MailsController {
+    private static Logger LOGGER = LoggerFactory.getLogger(MailsController.class);
     @Autowired
     private MailService mailAgent;
 

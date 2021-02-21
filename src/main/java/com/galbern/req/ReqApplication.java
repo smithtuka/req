@@ -12,6 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import javax.websocket.OnError;
+import javax.websocket.Session;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -42,4 +44,22 @@ public class ReqApplication {
 		LOGGER.info("[GCW-RMS LIVE] "  + Calendar.getInstance().getTime());
 	}
 
+//	@OnError
+//	public void onError(Session sess, Throwable e) {
+//		Throwable cause = e.getCause();
+//		/* normal handling... */
+//		if (cause != null)
+//			System.out.println("Error-info: cause->" + cause);
+//		try {
+//			// Likely EOF (i.e. user killed session)
+//			// so just Close the input stream as instructed
+//			sess.close();
+//		} catch (IOException ex) {
+//			System.out.println("Handling eof, A cascading IOException was caught: " + ex.getMessage());
+//			ex.printStackTrace();
+//		} finally {
+//			System.out.println("Session error handled. (likely unexpected EOF) resulting in closing User Session.");
+//
+//		}
+//	}
 }

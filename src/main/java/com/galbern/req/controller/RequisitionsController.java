@@ -4,7 +4,6 @@ import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
 import com.galbern.req.service.BO.RequisitionBO;
-import com.galbern.req.utilities.ExcelUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -23,9 +22,9 @@ import java.util.List;
 @Api(value = "controller for RMS service version v1", tags={"RMSV1Controller"})
 @RestController
 @RequestMapping("/v1/requisitions")
-public class RequisitionController {
+public class RequisitionsController {
 
-    public static Logger LOGGER = LoggerFactory.getLogger(RequisitionController.class);
+    public static Logger LOGGER = LoggerFactory.getLogger(RequisitionsController.class);
     @Autowired
     private RequisitionBO requisitionBO;
 
