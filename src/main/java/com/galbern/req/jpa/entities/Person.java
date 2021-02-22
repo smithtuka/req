@@ -2,14 +2,16 @@ package com.galbern.req.jpa.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
 
 
@@ -24,8 +26,7 @@ import java.io.Serializable;
 public class Person implements Serializable {
 
 
-    @Transient
-    private Long id;
+
     private String firstName;
     private String lastName;
 

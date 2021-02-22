@@ -22,10 +22,10 @@ public class EmailUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailUtils.class);
 
-    private  static final String defaultRecipientEmail = "rms.galbern@gmail.com";
+
     private  static final String defaultFromEmail1 = "rms.galbern@gmail.com";
     private  static final String defaultFromEmail = "info@galbern.com";
-    private  static final String mailHost = "mail.galbern.com"; // set this up for galbern
+    private  static final String mailHost = "mail.galbern.com"; //set this up for galbern
     private  static final String gmailHost = "smtp.gmail.com"; // set this up for gmail
     @Value("${mailer.secret}")
     private String secret;
@@ -36,7 +36,7 @@ public class EmailUtils {
     public String sendSimpleGmail(String subjectText,
                                   String messageText,
                                   List<String> recipientEmails,
-                                  boolean isMultipart) {
+                                  File file) {
         LOGGER.info("sendGMail - entering");
 
         // Get system properties
@@ -60,12 +60,11 @@ public class EmailUtils {
             // Create a default MimeMessage object.
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(defaultFromEmail1));
-            recipientEmails.add(defaultRecipientEmail);
             recipientEmails.forEach(mailAddress -> {
                 try {
                     message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailAddress));
-                    if(isMultipart) sendMultipartMail(message,
-                            new File("/Users/smithtuka/Documents/Projects/req/src/main/resources/data.txt"),
+                    if(null!=file) sendMultipartMail(message,
+                            file,
                             messageText);
                 } catch (MessagingException e) {
                     LOGGER.debug("[GMAIL-FAILURE] failure to set recipient address  ", e);
@@ -83,8 +82,8 @@ public class EmailUtils {
     }
 
     public String sendSimpleGcwMail(String subjectText, String messageText,
-                                        List<String> recipientMails,
-                                        boolean isMultipart) throws MessagingException, IOException {
+                                    List<String> recipientMails,
+                                    File file) throws MessagingException, IOException {
         Properties properties = System.getProperties();
         // Setup Galbern server
         properties.put("mail.host", mailHost);
@@ -99,20 +98,16 @@ public class EmailUtils {
             }
 
         });
-
         session.setDebug(true);
         try {
             MimeMessage message = new MimeMessage(session);
             message.setSubject(subjectText);
             message.setFrom(new InternetAddress(defaultFromEmail));
-            recipientMails.add(defaultRecipientEmail);
             recipientMails.forEach(mailAddress -> {
                 try {
                     message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailAddress));
                     message1.set(message);
-                    if(isMultipart) sendMultipartMail(message,
-                            new File("/Users/smithtuka/Documents/Projects/req/src/main/resources/data.txt"),
-                            messageText);
+                    if (null != file) sendMultipartMail(message, file, messageText);
                 } catch (MessagingException e) {
                     LOGGER.debug("failure to set recipient address  in GalbernMail", e);
                 }
@@ -120,7 +115,7 @@ public class EmailUtils {
             message.setText(messageText);
             Transport.send(message);
         } catch (MessagingException mex) {
-            LOGGER.error("[GCW-MAIL-FAILURE] GCW Mail dispatch failed to send for {} ", message1.get().getContent().toString(), recipientMails, mex);
+            LOGGER.error("[GCW-MAIL-FAILURE] GCW Mail dispatch failed to send for {} to {}", message1.get().getContent().toString(), recipientMails, mex);
             return "failed";
         }
         return "success";
@@ -134,21 +129,20 @@ public class EmailUtils {
                 MimeBodyPart textPart = new MimeBodyPart();
 
                 try {
-                    File f = file;
-                    attachmentPart.attachFile(f);
+                    attachmentPart.attachFile(file);
                     textPart.setText(textMessage); // might pick from mime already
-
                     multipart.addBodyPart(textPart);
                     multipart.addBodyPart(attachmentPart);
 
                 } catch (IOException e) {
-                    LOGGER.error("[MULTIPART-EMAIL-FAILURE] - exception sending multipart email", e);
+                    LOGGER.error("[MULTIPART-EMAIL-FAILURE] - exception sending multipart email with attachment {}", file.getName(), e);
+                    throw e;
                 }
 
                 message.setContent(multipart);
                 LOGGER.debug("sending multi-part");
                 Transport.send(message);
-            } catch (MessagingException mex) {
+            } catch (MessagingException | IOException mex) {
                 LOGGER.error("[MULTIPART-EMAIL-FAILURE] - exception sending multipart email", mex);
                 return "failed";
             }

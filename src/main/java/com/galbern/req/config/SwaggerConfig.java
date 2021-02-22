@@ -35,7 +35,7 @@ public class SwaggerConfig {
         //Adding Header
         ParameterBuilder aParameterBuilder = new ParameterBuilder();
         aParameterBuilder.name("USER")
-                .defaultValue("{\"firstName\":\"Swagger\", \"lastName\":\"Testing\", \"ldap\":\"123456\"}")
+                .defaultValue("{\"firstName\":\"Swagger\", \"lastName\":\"Testing\", \"empId\":\"GCW001\"}")
                 .modelRef(new ModelRef("string"))
                 .parameterType("header")
                 .build();
@@ -47,7 +47,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .directModelSubstitute(XMLGregorianCalendar.class, String.class)
                 .select()
-                .apis(RequestHandlerSelectors.any()) //RRequestHandlerSelectors.withClassAnnotation(Api.class)
+                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class)) // RequestHandlerSelectors.any()
                 .paths(PathSelectors.any()) // PathSelectors.ant("/**")
                 .build()
                 .apiInfo(

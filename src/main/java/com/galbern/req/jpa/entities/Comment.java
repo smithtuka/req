@@ -7,8 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.jpa.repository.Temporal;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity(name="COMMENTS")
 @Table(name="COMMENTS")
@@ -24,6 +26,8 @@ public class Comment { // notifications in front-end
     @GeneratedValue
     private Long id;
     private String narration;
+    @Basic // Temporal
+    private Date commentDate;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Requisition requisition;
@@ -31,6 +35,8 @@ public class Comment { // notifications in front-end
     @OneToOne
     @JoinColumn
     private User commenter;
+
+
 
 
 

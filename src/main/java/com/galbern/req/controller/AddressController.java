@@ -3,6 +3,7 @@ package com.galbern.req.controller;
 import com.galbern.req.jpa.entities.Address;
 import com.galbern.req.exception.AddressNotFoundException;
 import com.galbern.req.service.AddressService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
+@Api(value = "controller for RMS service version v1", tags={"RMSV1AddressController"})
 @RestController
 @RequestMapping("/v1/addresses")
 public class AddressController {
