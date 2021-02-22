@@ -1,7 +1,6 @@
 package com.galbern.req.jpa.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,6 +25,7 @@ import java.util.Objects;
 @DynamicUpdate
 @DynamicInsert
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Stage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +39,7 @@ public class Stage {
     private Date plannedEndDate;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JsonBackReference
+//    @JsonIgnore
     private Project project;
 
     @OneToMany(mappedBy = "stage", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

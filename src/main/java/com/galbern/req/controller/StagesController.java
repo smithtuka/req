@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Api(value = "controller for RMS Stages version v1", tags={"RMSStagesController"})
+import java.util.List;
+
+@Api(value = "controller for RMS Stages version v1", tags={"RMSV1StagesController"})
 @RestController
 @RequestMapping("/v1/stages")
 public class StagesController {
@@ -70,17 +72,17 @@ public class StagesController {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ApiOperation(value = "findStages", nickname = "ALL",
-            notes = "to fetch all stages")
+    @ApiOperation(value = "findStagesOfAProject", nickname = "ALL Stages in a project",
+            notes = "to fetch all stages by a projectId")
     @ApiResponses({
             @ApiResponse(code = 200, message = "SUCCESS", response = Stage.class),
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
     })
     @GetMapping
-    public ResponseEntity<Stage> findStages(@RequestParam(value = "stageId", required = false) Long stageId) {
+    public ResponseEntity<List<Stage>> findStagesByProjectId(@RequestParam(value = "projectId") Long stageId) {
         try {
             LOGGER.info("GET /v1/stages {}", Thread.currentThread().getStackTrace()[1].getMethodName());
-            return new ResponseEntity<>(stageServiceBO.findById(stageId), HttpStatus.OK);
+            return new ResponseEntity<>(stageServiceBO.findStagesByProjectId(stageId), HttpStatus.OK);
         } catch (RuntimeException ex) {
             LOGGER.error("error executing findAllStages", ex);
         }

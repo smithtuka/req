@@ -38,7 +38,7 @@ public class StageServiceBO {
             maxAttempts = 2, backoff = @Backoff(delay = 500))
     public List<Stage> findStagesByProjectId(Long id) {
         try {
-            return (List<Stage>) stageDao.findStagesByProjectId(id);
+            return stageDao.findStagesByProjectId(id);
         } catch (Exception e) {
             LOGGER.error("[FETCH-STAGES-FAILURE] - error getting all stages by projectId - {}", id);
             throw e;

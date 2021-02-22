@@ -56,7 +56,7 @@ public class ProjectServiceBO {
             Project proj = projectDao.findById(project.getId()).get();
             proj.setApprovers(project.getApprovers());
             proj.setCustomer(project.getCustomer());
-            proj.setIsActive(project.getIsActive());
+            proj.setActive(project.getActive());
             proj.setName(project.getName());
             return projectDao.save(proj);
         } catch (Exception e) {

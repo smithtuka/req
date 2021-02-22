@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Api(value = "controller for RMS Projects version v1", tags={"RMSProjectsController"})
+import java.util.List;
+
+@Api(value = "controller for RMS Projects version v1", tags={"RMSV1ProjectsController"})
 @RestController
 @RequestMapping("/v1/projects")
 public class ProjectsController {
@@ -76,10 +78,10 @@ public class ProjectsController {
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
     })
     @GetMapping
-    public ResponseEntity<Project> findProjects(@RequestParam(value = "projectId", required = false) Long projectId) {
+    public ResponseEntity<List<Project>> findProjects() {
         try {
             LOGGER.info("GET /v1/projects {}", Thread.currentThread().getStackTrace()[1].getMethodName());
-            return new ResponseEntity<>(projectServiceBO.findById(projectId), HttpStatus.OK);
+            return new ResponseEntity<>(projectServiceBO.findAllProjects(), HttpStatus.OK);
         } catch (RuntimeException ex) {
             LOGGER.error("error executing findAllProjects", ex);
         }

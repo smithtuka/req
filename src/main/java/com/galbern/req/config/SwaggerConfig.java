@@ -35,7 +35,7 @@ public class SwaggerConfig {
         //Adding Header
         ParameterBuilder aParameterBuilder = new ParameterBuilder();
         aParameterBuilder.name("USER")
-                .defaultValue("{\"firstName\":\"Swagger\", \"lastName\":\"Testing\", \"ldap\":\"123456\"}")
+                .defaultValue("{\"firstName\":\"Swagger\", \"lastName\":\"Testing\", \"empId\":\"GCW001\"}")
                 .modelRef(new ModelRef("string"))
                 .parameterType("header")
                 .build();

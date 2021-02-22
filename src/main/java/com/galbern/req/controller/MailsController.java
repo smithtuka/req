@@ -1,6 +1,7 @@
 package com.galbern.req.controller;
 
 import com.galbern.req.service.BO.MailService;
+import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+@Api(value = "controller for RMS mailing service version v1", tags={"RMSV1MailsController"})
 @RestController
 @RequestMapping("/mail")
 public class MailsController {

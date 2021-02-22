@@ -1,8 +1,7 @@
 package com.galbern.req.jpa.entities;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 
-@Data
+//@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,6 +26,7 @@ import java.util.Set;
 @DynamicUpdate
 @DynamicInsert
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Project implements Serializable {
 
     @Id
@@ -40,12 +40,12 @@ public class Project implements Serializable {
     private User customer;
 
     @OneToMany(mappedBy="project", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-//    @JsonManagedReference
     @Fetch(FetchMode.JOIN)
     private Set<Stage> stages;
 
     @OneToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
+    @Fetch(FetchMode.JOIN)
     private Address address;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -53,4 +53,60 @@ public class Project implements Serializable {
     @Fetch(FetchMode.JOIN)
     List<User> approvers;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public User getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(User customer) {
+        this.customer = customer;
+    }
+
+    public Set<Stage> getStages() {
+        return stages;
+    }
+
+    public void setStages(Set<Stage> stages) {
+        for(Stage s: stages) s.setProject(this);
+        this.stages = stages;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public List<User> getApprovers() {
+        return approvers;
+    }
+
+    public void setApprovers(List<User> approvers) {
+        this.approvers = approvers;
+    }
 }

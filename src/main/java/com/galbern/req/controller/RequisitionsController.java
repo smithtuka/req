@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 
-@Api(value = "controller for RMS service version v1", tags={"RMSV1Controller"})
+@Api(value = "controller for RMS service version v1", tags={"RMSV1RequisitionsController"})
 @RestController
 @RequestMapping("/v1/requisitions")
 public class RequisitionsController {

@@ -48,6 +48,7 @@ public class Requisition {
     private User requester;
 
     @ManyToOne(fetch = FetchType.LAZY)
+//    @Fetch(FetchMode.JOIN)
     private Stage stage;
 
     @OneToMany(mappedBy = "requisition", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -60,6 +61,7 @@ public class Requisition {
 
     @OneToMany(mappedBy = "requisition", fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
+//    @Fetch(FetchMode.JOIN)
     private List<Comment> requisitionComments;
 
     public void addItem(Item item) {
