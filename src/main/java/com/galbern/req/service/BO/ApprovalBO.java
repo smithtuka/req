@@ -23,6 +23,7 @@ public class ApprovalBO {
     private MailService mailService;
     @Autowired
     private RequisitionBO requisitionBO;
+    @Autowired
     private ExcelUtil excelUtil; // need autowire?
 
     public Requisition approveRequisition(Requisition requisition) {
