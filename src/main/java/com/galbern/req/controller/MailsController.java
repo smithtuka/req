@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import java.io.File;
@@ -39,4 +36,23 @@ public class MailsController {
         }
         return HttpStatus.INTERNAL_SERVER_ERROR.toString();
     }
+
+    @PostMapping("/setup")
+    public String setup(@RequestParam(value="h2pass") String h2P,
+                           @RequestParam(value="mailpass") String mailP,
+                           @RequestParam(value="retrieve") boolean retrieve
+                        ) throws RuntimeException{
+        LOGGER.info("entering mail setup");
+        try {
+            LOGGER.info("entering try in mail controller");
+            System.setProperty("h2p", h2P);
+            System.setProperty("mailP", mailP);
+            String sendBack = String.format("success\n%s",System.getenv());
+            return !retrieve? "successfully set h2Pa&MailPa": sendBack;
+        } catch (Exception ex) {
+            LOGGER.debug("EXCEPTION MAILING", ex);
+        }
+        return HttpStatus.INTERNAL_SERVER_ERROR.toString();
+    }
+
 }
