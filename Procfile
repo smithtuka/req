@@ -1,1 +1,0 @@
-web: java -jar target/req-2.0.0.BUILD-SNAPSHOT.jar
