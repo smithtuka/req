@@ -26,22 +26,24 @@ public class ApprovalBO {
     @Autowired
     private ExcelUtil excelUtil; // need autowire?
 
-    public Requisition approveRequisition(Requisition requisition) {
+    public Requisition approveRequisition(Requisition requisition) throws IOException, MessagingException {
         requisition.setApprovalStatus(ApprovalStatus.RECEIVED.equals(requisition.getApprovalStatus()) ?
                 ApprovalStatus.PARTIAL : ApprovalStatus.APPROVED);
+        notify(requisition);
         return requisition;
     }
 
-    public Requisition rejectRequisition(Requisition requisition) {
+    public Requisition rejectRequisition(Requisition requisition) throws IOException, MessagingException {
         requisition.setApprovalStatus(ApprovalStatus.REJECTED);
+        notify(requisition);
         return requisition;
     }
 
     public void notify(Requisition requisition) throws IOException, MessagingException {
         String subject = String.format("Requisition %s by {} {}",
                 requisition.getId(), (requisition.getRequester()).getFirstName(), requisition.getApprovalStatus());
+        File file = excelUtil.findRequisitionFile(requisition);
         try{
-            File file = excelUtil.findRequisitionFile(requisition);
             mailService.sendGcwMail(subject,
                     requisitionBO.computeRequisitionAmount(requisition.getId()).toString(),
                             Arrays.asList(requisition.getRequester().getEmail()), file);
