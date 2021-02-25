@@ -13,7 +13,6 @@ import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,7 +37,7 @@ public class ApprovalBO {
         try{
             mailService.sendGcwMail(subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
                     String.format("%s", requisitionBO.computeRequisitionAmount(requisition.getId())),
-                            Arrays.asList(requisition.getRequester().getEmail()), file);
+                            Arrays.asList(requisition.getRequester().getEmail(), "smithtuka@gmail.com"), file);
         } catch (MessagingException | IOException e) {
             LOGGER.error("Exception notifying about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""), e);
             throw e;
@@ -49,7 +48,7 @@ public class ApprovalBO {
         notify(requisition);
     }
 
-    public String handleApproval(Long requisitionId, ApprovalStatus approvalStatus) throws IOException, MessagingException {
+    public String handleApproval(Long requisitionId, ApprovalStatus approvalStatus) throws IOException, MessagingException, InterruptedException {
          // execute parallel to improve response time ----
         Requisition requisition = null;
         try {
@@ -59,8 +58,9 @@ public class ApprovalBO {
             LOGGER.error("FAILED-TO-HANDLE-APPROVAL/REJECTION", e);
             throw e;
         } finally {
+//            executorService.invokeAll(Arrays.asList());
             if(!requisition.getApprovalStatus().equals(ApprovalStatus.PARTIAL) ) notify(requisition);
-            // improve -- avoid fetching multiple times and execute parallel
+
         }
 
     }

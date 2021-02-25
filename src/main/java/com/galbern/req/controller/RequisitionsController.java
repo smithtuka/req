@@ -149,7 +149,7 @@ public class RequisitionsController {
         try{
             LOGGER.info("PUT /v1/requisitions in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(approvalBO.handleApproval(requisitionId, approvalStatus), HttpStatus.OK);
-        } catch (RequisitionExecutionException | IOException | MessagingException ex){
+        } catch (RequisitionExecutionException | IOException | MessagingException | InterruptedException ex){
             LOGGER.error("error handleApproval in handler", ex);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
