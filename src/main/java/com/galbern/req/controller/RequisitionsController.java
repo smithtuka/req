@@ -3,6 +3,7 @@ package com.galbern.req.controller;
 import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
+import com.galbern.req.service.BO.ApprovalBO;
 import com.galbern.req.service.BO.RequisitionBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -16,10 +17,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-@Api(value = "controller for RMS service version v1", tags={"RMSV1RequisitionsController"})
+@Api(value = "RMS service version v1", tags={"RMSV1RequisitionsController"})
 @RestController
 @RequestMapping("/v1/requisitions")
 public class RequisitionsController {
@@ -27,6 +30,8 @@ public class RequisitionsController {
     public static Logger LOGGER = LoggerFactory.getLogger(RequisitionsController.class);
     @Autowired
     private RequisitionBO requisitionBO;
+    @Autowired
+    private ApprovalBO approvalBO;
 
     @ApiOperation(value = "ping", nickname = "ping", notes = "to ping")
     @ApiResponses({
@@ -127,6 +132,25 @@ public class RequisitionsController {
             return new ResponseEntity<>(requisitionBO.updateRequisition(requisition), HttpStatus.OK);
         } catch (RequisitionExecutionException ex){
             LOGGER.error("error updateRequisition in handler", ex);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ApiOperation(value = "handleRequisitionApproval", nickname = "approve",
+            notes = "to approve a requisitions")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS", response = String.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<String> Requisition(
+            @PathVariable("id") Long requisitionId,
+            @RequestParam("approvalStatus") ApprovalStatus approvalStatus){
+        try{
+            LOGGER.info("PUT /v1/requisitions in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
+            return new ResponseEntity<>(approvalBO.handleApproval(requisitionId, approvalStatus), HttpStatus.OK);
+        } catch (RequisitionExecutionException | IOException | MessagingException | InterruptedException ex){
+            LOGGER.error("error handleApproval in handler", ex);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }

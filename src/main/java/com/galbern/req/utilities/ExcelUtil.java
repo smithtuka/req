@@ -7,20 +7,25 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Component
 public class ExcelUtil {
     public static Logger LOGGER = LoggerFactory.getLogger(ExcelUtil.class);
+    @Autowired
+    private FilesUtil filesUtil;
 
     public File findRequisitionFile(Requisition requisition) throws IOException {
-        String filePath = String.format("src/main/resources/files/wb.xls",  requisition.getId()); //requisition.getRequiredDate(),
+
+//        String filePath = filesUtil.createFile(requisition);
+        String filePath = filesUtil.createDirectoryFile(requisition);
+
         LOGGER.info("[file started] - {}", filePath);
         try {
             return writeObjects2ExcelFile(requisition.getItems(), filePath);
@@ -85,7 +90,7 @@ public class ExcelUtil {
         LOGGER.info("[workbook created] - {}", workbook.getAllNames());
         fileOut.close();
         workbook.close();
-        return new File("/Users/smithtuka/Documents/Projects/req/src/main/resources/files/wb.xls");
+        return new File(filePath);
     }catch (Exception e){
         LOGGER.error("[WORKBOOK-CREATION-FAILURE] - failed to create {}", filePath, e );
         throw e;

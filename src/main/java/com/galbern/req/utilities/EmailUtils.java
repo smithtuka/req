@@ -1,7 +1,9 @@
 package com.galbern.req.utilities;
 
+import com.galbern.req.constants.RmsConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +23,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class EmailUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailUtils.class);
+    @Autowired
+    private ConfigProvider configProvider;
 
 
     private  static final String defaultFromEmail1 = "rms.galbern@gmail.com";
@@ -33,10 +37,10 @@ public class EmailUtils {
 
 
 
-    public String sendSimpleGmail(String subjectText,
-                                  String messageText,
-                                  List<String> recipientEmails,
-                                  File file) {
+    public String sendByGmail(String subjectText,
+                              String messageText,
+                              List<String> recipientEmails,
+                              File file) {
         LOGGER.info("sendGMail - entering");
 
         // Get system properties
@@ -81,9 +85,9 @@ public class EmailUtils {
         return "success";
     }
 
-    public String sendSimpleGcwMail(String subjectText, String messageText,
-                                    List<String> recipientMails,
-                                    File file) throws MessagingException, IOException {
+    private String sendByGcwMail(String subjectText, String messageText,
+                                List<String> recipientMails,
+                                File file) throws MessagingException, IOException {
         Properties properties = System.getProperties();
         // Setup Galbern server
         properties.put("mail.host", mailHost);
@@ -121,7 +125,7 @@ public class EmailUtils {
         return "success";
     }
 
-         public String sendMultipartMail(MimeMessage message, File file, String textMessage) {
+         private String sendMultipartMail(MimeMessage message, File file, String textMessage) {
 
             try {
                 Multipart multipart = new MimeMultipart();
@@ -149,6 +153,14 @@ public class EmailUtils {
             LOGGER.info("successfully sent multi-part mail");
             return "success";
 
+        }
+
+        public String sendMailAlert(String subjectText, String messageText,
+                               List<String> recipientMails,
+                               File file) throws IOException, MessagingException {
+        return RmsConstants.DEFAULT_EMAIL_DISPATCHER_SERVICE.equalsIgnoreCase(configProvider.getMailDispatcher()) ?
+                this.sendByGcwMail(subjectText,messageText,recipientMails,file) :
+                this.sendByGmail(subjectText,messageText,recipientMails,file) ;
         }
 
 

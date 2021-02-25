@@ -15,10 +15,10 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.TransactionSystemException;
 
 import javax.mail.MessagingException;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -38,27 +38,28 @@ public class RequisitionBO implements RequisitionService {
     private MailService mailService;
     @Autowired
     private ExcelUtil excelUtil;
+    @Autowired
+    private ApprovalBO approvalBO;
 
     @Retryable(value = {DataAccessResourceFailureException.class,
             TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public Requisition createRequisition(Requisition requisition) throws IOException, MessagingException {
         Requisition createdRequisition;
         try{
-            createdRequisition = requisitionDao.save(requisition);
-            File file   =       excelUtil.findRequisitionFile(requisition); // testing
-            mailService.sendGcwMail(String.format("Requisition-%s successfully submitted", requisition.getId()),
-                    String.format("Hello %s\n\nYour Requisition totalling UGX %s has been successfully submitted!", requisition.getRequester().getFirstName(),  this.computeRequisitionAmount(requisition.getId())),
-                    Arrays.asList(requisition.getRequester().getEmail()) ,file);
+            return requisitionDao.save(requisition);
         } catch (Exception ex){
             LOGGER.error("[REQUISITION-CREATION-FAILURE] - failed to persist a requisition {}", new Gson().toJson(requisition).replaceAll("[\r\n]+", ""), ex);
             mailService.sendGcwMail(String.format("Requisition-%s creation failed {}\n{}", requisition.getId()),
                     String.format("Hello {},\n\nIt looks like your Requisition totalling UGX %s has failed to execute!\n{}\n You mau kindly try again!!",requisition.getRequester().getFirstName(), this.computeRequisitionAmount(requisition.getId()), new Gson().toJson(requisition)),
                     Arrays.asList(requisition.getRequester().getEmail()) ,null);
             throw new RequisitionExecutionException("failed to persist requisition", ex);
+        } finally { // still slow reactor shall be used to fix this
+            approvalBO.createRequisition(requisition);
         }
-        return createdRequisition;
     }
 
+    @Retryable(value = {DataAccessResourceFailureException.class,
+            TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public Requisition findRequisitionById(Long id){
         try {
             return requisitionDao.findById(id).get();
@@ -68,21 +69,30 @@ public class RequisitionBO implements RequisitionService {
         }
     }
 
+    @Retryable(value = {DataAccessResourceFailureException.class, TransactionSystemException.class, CannotCreateTransactionException.class},
+            maxAttempts = 2, backoff = @Backoff(delay = 500))
     public Requisition updateRequisition(Requisition requisition){
-        Long id = requisition.getId();
-        Optional<Requisition> former = requisitionDao.findById(id);
-        Requisition newRequisition = null;
-        if(former.isPresent()){
-            newRequisition = former.get();
-            newRequisition.builder()
-                    .id(requisition.getId())
-                    .approvalStatus(requisition.getApprovalStatus())
-                    .items(requisition.getItems())
-                    .stage(requisition.getStage());
+        try {
+            Long id = requisition.getId();
+            Optional<Requisition> former = requisitionDao.findById(id);
+            Requisition newRequisition = null;
+            if (former.isPresent()) {
+                newRequisition = former.get();
+                newRequisition.builder()
+                        .id(requisition.getId())
+                        .approvalStatus(requisition.getApprovalStatus())
+                        .items(requisition.getItems())
+                        .stage(requisition.getStage());
+            }
+            return requisitionDao.save(newRequisition);
+        } catch (Exception ex){
+            LOGGER.error("REQUISITION-UPDATE-FAILURE - failed to update {}", requisition.getId());
+            throw ex;
         }
-        return requisitionDao.save(newRequisition);
     }
 
+    @Retryable(value = {DataAccessResourceFailureException.class,
+            TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public String deleteRequisition(Long id){
         Optional<Requisition> requisition = requisitionDao.findById(id);
         if(requisition.isPresent()){
@@ -91,6 +101,9 @@ public class RequisitionBO implements RequisitionService {
         };
         return "not deleted";
     }
+
+    @Retryable(value = {DataAccessResourceFailureException.class,
+            TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public List<Requisition> findRequisitions(List<Long> stageIds,
                                               List<Long> projectIds,
                                               List<Long> requesterIds,
@@ -153,4 +166,16 @@ public class RequisitionBO implements RequisitionService {
         }
     }
 
+    public Requisition handleApproval(Long requisitionId, ApprovalStatus approvalStatus) {
+        try {
+            Requisition former = requisitionDao.findById(requisitionId).get();
+            former.setApprovalStatus(approvalStatus);
+            LOGGER.info("REQUISITION-FETCHED-FOR-APPROVAL -   {}", former.getId()); // new Gson().toJson(former) fix this
+            requisitionDao.save(former);
+            return former;
+        } catch (Exception ex){
+            LOGGER.error("REQUISITION-APPROVAL-FAILURE - failed to update  {}", requisitionId);
+            throw ex;
+        }
+    }
 }

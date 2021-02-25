@@ -2,3 +2,7 @@
 req.iml
 com.galbern.req.sandbox.*
 .idea
+/application-dev.properties
+*dev
+.env
+.gitignore
