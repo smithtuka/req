@@ -13,6 +13,9 @@ import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @Service
@@ -24,28 +27,18 @@ public class ApprovalBO {
     @Autowired
     private RequisitionBO requisitionBO;
     @Autowired
-    private ExcelUtil excelUtil; // need autowire?
+    private ExcelUtil excelUtil;
 
-    public Requisition approveRequisition(Requisition requisition) throws IOException, MessagingException {
-        requisition.setApprovalStatus(ApprovalStatus.RECEIVED.equals(requisition.getApprovalStatus()) ?
-                ApprovalStatus.PARTIAL : ApprovalStatus.APPROVED);
-        notify(requisition);
-        return requisition;
-    }
-
-    public Requisition rejectRequisition(Requisition requisition) throws IOException, MessagingException {
-        requisition.setApprovalStatus(ApprovalStatus.REJECTED);
-        notify(requisition);
-        return requisition;
-    }
+    private ExecutorService executorService = Executors.newCachedThreadPool(); // use later
+    private static boolean DET;
 
     public void notify(Requisition requisition) throws IOException, MessagingException {
         String subject = String.format("Requisition %s by {} {}",
                 requisition.getId(), (requisition.getRequester()).getFirstName(), requisition.getApprovalStatus());
         File file = excelUtil.findRequisitionFile(requisition);
         try{
-            mailService.sendGcwMail(subject,
-                    requisitionBO.computeRequisitionAmount(requisition.getId()).toString(),
+            mailService.sendGcwMail(subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
+                    String.format("%s", requisitionBO.computeRequisitionAmount(requisition.getId())),
                             Arrays.asList(requisition.getRequester().getEmail()), file);
         } catch (MessagingException | IOException e) {
             LOGGER.error("Exception notifying about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""), e);
@@ -53,4 +46,21 @@ public class ApprovalBO {
         }
     }
 
+    public void createRequisition(Requisition requisition) throws IOException, MessagingException {
+        notify(requisition);
+    }
+
+    public String handleApproval(Long requisitionId, ApprovalStatus approvalStatus) throws IOException, MessagingException {
+         // execute parallel to improve response time ----
+        try {
+            DET = requisitionBO.handleApproval(requisitionId, approvalStatus) ;
+            return "success";
+        } catch (Exception e){
+            LOGGER.error("FAILED-TO-HANDLE-APPROVAL/REJECTION", e);
+            throw e;
+        } finally {
+            if(DET) notify(requisitionBO.findRequisitionById(requisitionId)); // improve -- avoid fetching multiple times and execute parallel
+        }
+
+    }
 }
