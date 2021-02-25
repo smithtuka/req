@@ -172,12 +172,12 @@ public class RequisitionBO implements RequisitionService {
         }
     }
 
-    public boolean handleApproval(Long requisitionId, ApprovalStatus approvalStatus) {
+    public Requisition handleApproval(Long requisitionId, ApprovalStatus approvalStatus) {
         try {
             Requisition former = requisitionDao.findById(requisitionId).get();
             former.setApprovalStatus(approvalStatus);
             requisitionDao.save(former);
-            return true;
+            return former;
         } catch (Exception ex){
             LOGGER.error("REQUISITION-APPROVAL-FAILURE - failed to update  {}", requisitionId);
             throw ex;

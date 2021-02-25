@@ -30,7 +30,6 @@ public class ApprovalBO {
     private ExcelUtil excelUtil;
 
     private ExecutorService executorService = Executors.newCachedThreadPool(); // use later
-    private static boolean DET;
 
     public void notify(Requisition requisition) throws IOException, MessagingException {
         String subject = String.format("Requisition %s by {} {}",
@@ -52,14 +51,16 @@ public class ApprovalBO {
 
     public String handleApproval(Long requisitionId, ApprovalStatus approvalStatus) throws IOException, MessagingException {
          // execute parallel to improve response time ----
+        Requisition requisition = null;
         try {
-            DET = requisitionBO.handleApproval(requisitionId, approvalStatus) ;
+            requisition = requisitionBO.handleApproval(requisitionId, approvalStatus) ;
             return "success";
         } catch (Exception e){
             LOGGER.error("FAILED-TO-HANDLE-APPROVAL/REJECTION", e);
             throw e;
         } finally {
-            if(DET) notify(requisitionBO.findRequisitionById(requisitionId)); // improve -- avoid fetching multiple times and execute parallel
+            if(!requisition.getApprovalStatus().equals(ApprovalStatus.PARTIAL) ) notify(requisition);
+            // improve -- avoid fetching multiple times and execute parallel
         }
 
     }

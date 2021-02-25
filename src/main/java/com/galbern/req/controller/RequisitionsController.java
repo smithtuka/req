@@ -139,7 +139,7 @@ public class RequisitionsController {
     @ApiOperation(value = "handleRequisitionApproval", nickname = "approve",
             notes = "to approve a requisitions")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "SUCCESS", response = Requisition.class),
+            @ApiResponse(code = 200, message = "SUCCESS", response = String.class),
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
     })
     @PutMapping("/{id}")
