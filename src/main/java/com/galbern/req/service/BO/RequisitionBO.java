@@ -174,7 +174,7 @@ public class RequisitionBO implements RequisitionService {
 
     public boolean handleApproval(Long requisitionId, ApprovalStatus approvalStatus) {
         try {
-            Requisition former = requisitionDao.getOne(requisitionId);
+            Requisition former = requisitionDao.findById(requisitionId).get();
             former.setApprovalStatus(approvalStatus);
             requisitionDao.save(former);
             return true;
