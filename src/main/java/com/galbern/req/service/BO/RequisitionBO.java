@@ -47,11 +47,6 @@ public class RequisitionBO implements RequisitionService {
         Requisition createdRequisition;
         try{
             return requisitionDao.save(requisition);
-//            File file   =       excelUtil.findRequisitionFile(requisition); // testing
-//            mailService.sendGcwMail(String.format("Requisition-%s successfully submitted", requisition.getId()),
-//                    String.format("Hello %s\n\nYour Requisition totalling UGX %,d has been successfully submitted!", requisition.getRequester().getFirstName(),  this.computeRequisitionAmount(requisition.getId())),
-//                    Arrays.asList(requisition.getRequester().getEmail(), requisition.getStage().getProject().getApprovers()) ,file);
-
         } catch (Exception ex){
             LOGGER.error("[REQUISITION-CREATION-FAILURE] - failed to persist a requisition {}", new Gson().toJson(requisition).replaceAll("[\r\n]+", ""), ex);
             mailService.sendGcwMail(String.format("Requisition-%s creation failed {}\n{}", requisition.getId()),
@@ -59,7 +54,7 @@ public class RequisitionBO implements RequisitionService {
                     Arrays.asList(requisition.getRequester().getEmail()) ,null);
             throw new RequisitionExecutionException("failed to persist requisition", ex);
         } finally { // still slow reactor shall be used to fix this
-//            approvalBO.createRequisition(requisition);
+            approvalBO.createRequisition(requisition);
         }
     }
 
@@ -175,6 +170,7 @@ public class RequisitionBO implements RequisitionService {
         try {
             Requisition former = requisitionDao.findById(requisitionId).get();
             former.setApprovalStatus(approvalStatus);
+            LOGGER.info("REQUISITION-FETCHED-FOR-APPROVAL -   {}", former.getId()); // new Gson().toJson(former) fix this
             requisitionDao.save(former);
             return former;
         } catch (Exception ex){

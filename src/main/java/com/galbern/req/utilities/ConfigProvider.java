@@ -15,5 +15,8 @@ public class ConfigProvider {
 
 //    @Value("$(rms.retryable.backoff:1000)")
     private int backoff;
+
+    @Value("$(mail.dispatcher.service)")
+    private String mailDispatcher;
     
 }

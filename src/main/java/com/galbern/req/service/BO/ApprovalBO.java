@@ -35,9 +35,10 @@ public class ApprovalBO {
                 requisition.getId(), (requisition.getRequester()).getFirstName(), requisition.getApprovalStatus());
         File file = excelUtil.findRequisitionFile(requisition);
         try{
+//            LOGGER.info("starting to notify about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""));
             mailService.sendGcwMail(subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
                     String.format("%s", requisitionBO.computeRequisitionAmount(requisition.getId())),
-                            Arrays.asList(requisition.getRequester().getEmail(), "smithtuka@gmail.com"), file);
+                            Arrays.asList(requisition.getRequester().getEmail()), file);
         } catch (MessagingException | IOException e) {
             LOGGER.error("Exception notifying about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""), e);
             throw e;

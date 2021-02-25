@@ -1,6 +1,5 @@
 package com.galbern.req.service.BO;
 
-import com.galbern.req.exception.MailSenderException;
 import com.galbern.req.utilities.EmailUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,22 +30,23 @@ public class MailService {
         body = String.format("\n" + body + "%s", "\n\nregards,\nTeam GCW-RMS");
         List<String> allRecipients = new ArrayList<>(recipients);
         allRecipients.add(DEFAULT_CC);
-        return emailUtils.sendSimpleGcwMail(subject, body, allRecipients, file);
+        return emailUtils.sendMailAlert(subject, body, allRecipients, file);
     }
 
     @Recover
     public String recoverMail(Exception ex,
                               String subject, String body,
                               List<String> recipients,
-                              File file) {
-        return sendGMail(subject, body, recipients, file);
+                              File file) throws IOException, MessagingException {
+
+        return sendByGMail(subject, body, recipients, file);
     }
 
     @Retryable(value = Exception.class, maxAttempts = 4, backoff = @Backoff(delay = 500))
-    public String sendGMail(String subject, String body, List<String> recipients, File file) {
+    public String sendByGMail(String subject, String body, List<String> recipients, File file) throws IOException, MessagingException {
         LOGGER.info("[GMAIL-SENDER-BACKUP] -- starting  GCW BACKUP Mailer ...");
         try {
-            return emailUtils.sendSimpleGmail(subject, body, recipients, file);
+            return emailUtils.sendByGmail(subject, body, recipients, file);
         } catch (Exception e) {
             LOGGER.error("[GMAIL-FAILURE] error sending Gmail, ", e);
             throw e;
