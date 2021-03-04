@@ -24,6 +24,7 @@ import java.util.List;
 
 @Api(value = "RMS service version v1", tags={"RMSV1RequisitionsController"})
 @RestController
+@CrossOrigin
 @RequestMapping("/v1/requisitions")
 public class RequisitionsController {
 

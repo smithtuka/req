@@ -1,4 +1,10 @@
-//package com.galbern.req.config;
+package com.galbern.req.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module; //
@@ -10,8 +16,9 @@
 //import java.util.List;
 //// HAOM -- HIBERNATE4MODULE // actually 5 jar used here
 //
-//@Configuration
-//public class WebConfig implements WebMvcConfigurer {
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
 //
 //    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
 //        for (HttpMessageConverter converter : converters) {
@@ -22,7 +29,12 @@
 //            }
 //        }
 //    }
-//}
+
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/**");
+        }
+}
 
 
 // configured with @Bean Hibernate5Module in Application class
