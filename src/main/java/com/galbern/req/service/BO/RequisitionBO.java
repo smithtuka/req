@@ -170,8 +170,8 @@ public class RequisitionBO implements RequisitionService {
         try {
             Requisition former = requisitionDao.findById(requisitionId).get();
             former.setApprovalStatus(approvalStatus);
-            LOGGER.info("REQUISITION-FETCHED-FOR-APPROVAL -   {}", former.getId()); // new Gson().toJson(former) fix this
-            requisitionDao.save(former);
+            LOGGER.info("REQUISITION-FETCHED-FOR-APPROVAL/REJECTION id:-   {} set to: {}", former.getId(), approvalStatus); // new Gson().toJson(former) fix this
+            requisitionDao.save(former); // fix in prd
             return former;
         } catch (Exception ex){
             LOGGER.error("REQUISITION-APPROVAL-FAILURE - failed to update  {}", requisitionId);
