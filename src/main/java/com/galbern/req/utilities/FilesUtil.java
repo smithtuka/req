@@ -47,12 +47,14 @@ public class FilesUtil {
     }
 
     public String createFile(Requisition requisition) throws IOException {
+        LOGGER.info(" FILE CREATION - RETRY (2) STARTED");
         try {
             String fileName = String.format("%s%s.xls", Timestamp.from(Instant.now()).toString().replaceAll("[-:.\\s]", ""),
                     requisition.getId());
             AtomicReference<File> myObj = new AtomicReference<>(new File(fileName));
 //            myObj.get().mkdir();
-            LOGGER.debug(myObj.get().createNewFile() ? "New file created: {}" : "File - {} already exists.", myObj.get().getName());
+            LOGGER.info(myObj.get().createNewFile() ? "New file created: {}" : "File - {} already exists.", myObj.get().getName());
+            LOGGER.info(" FILE CREATION - RETRY (2) ENDED");
             return fileName;
         } catch (IOException e) {
             LOGGER.error("[FILE-CREATION-FAILURE-2] - an error occurred.", e);
