@@ -36,9 +36,10 @@ public class FilesUtil {
             File newFile = new File(fileName);
             OutputStream out = new FileOutputStream(newFile);
             out.close();
-            LOGGER.debug("New file successfully created: - {}", newFile);
+            LOGGER.info("New file successfully created: - {}", newFile);
             return fileName;
         } catch (Exception e) {
+            LOGGER.info("[FILE-CREATION-FAILURE] - an error occurred.", e);
             LOGGER.error("[FILE-CREATION-FAILURE] - an error occurred.", e);
             createFile(requisition);
             throw e;
