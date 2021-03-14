@@ -44,13 +44,12 @@ public class RequisitionBO implements RequisitionService {
     @Retryable(value = {DataAccessResourceFailureException.class,
             TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public Requisition createRequisition(Requisition requisition) throws IOException, MessagingException {
-        Requisition createdRequisition;
         try{
             return requisitionDao.save(requisition);
         } catch (Exception ex){
             LOGGER.error("[REQUISITION-CREATION-FAILURE] - failed to persist a requisition {}", new Gson().toJson(requisition).replaceAll("[\r\n]+", ""), ex);
             mailService.sendGcwMail(String.format("Requisition-%s creation failed {}\n{}", requisition.getId()),
-                    String.format("Hello {},\n\nIt looks like your Requisition totalling UGX %s has failed to execute!\n{}\n You mau kindly try again!!",requisition.getRequester().getFirstName(), this.computeRequisitionAmount(requisition.getId()), new Gson().toJson(requisition)),
+                    String.format("Hello {},\n\nIt looks like your Requisition totalling UGX %s has failed to execute!\n{}\n You mau kindly try again!!",requisition.getRequester().getFirstName(), this.computeRequisitionAmount(requisition), new Gson().toJson(requisition)),
                     Arrays.asList(requisition.getRequester().getEmail()) ,null);
             throw new RequisitionExecutionException("failed to persist requisition", ex);
         } finally { // still slow reactor shall be used to fix this
@@ -162,6 +161,19 @@ public class RequisitionBO implements RequisitionService {
                     .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
         }catch (Exception e){
             LOGGER.error("[compute RequisitionAmount Failure] for {} Req id: ", id);
+            throw e;
+        }
+    }
+
+    public BigDecimal computeRequisitionAmount(Requisition requisition){
+        try {
+            List<Item> items = requisition.getItems();
+            items.forEach(i -> System.out.println(i.getPrice()+ " " + i.getQuantity()));
+            return items.stream()
+                    .map(item -> item.getQuantity().multiply(item.getPrice()))
+                    .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        }catch (Exception e){
+            LOGGER.error("[compute RequisitionAmount Failure] for {} Req id: ", requisition.getId());
             throw e;
         }
     }

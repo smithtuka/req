@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicReference;
 
 //@UtilityClass
 @Component
@@ -26,11 +25,10 @@ public class FilesUtil {
 
     public String  createDirectoryFile(Requisition requisition) throws IOException {
         try {
-
             String fileName = String.format("requisitions%s%s%s%s.xls",
-                    File.separator,
-                    requisition.getApprovalStatus(),
-                    File.separator,
+                    "/",
+                    requisition.getApprovalStatus().toString().toLowerCase(),
+                    "/",
                     Timestamp.from(Instant.now()).toString().replaceAll("[-:.\\s]", ""),
                     requisition.getId());
             File newFile = new File(fileName);
@@ -49,12 +47,12 @@ public class FilesUtil {
     public String createFile(Requisition requisition) throws IOException {
         LOGGER.info(" FILE CREATION - RETRY (2) STARTED");
         try {
-            String fileName = String.format("%s%s.xls", Timestamp.from(Instant.now()).toString().replaceAll("[-:.\\s]", ""),
+            String fileName = String.format("requisitions/%s/%s%s.xls", requisition.getApprovalStatus().toString().toLowerCase(),Timestamp.from(Instant.now()).toString().replaceAll("[-:.\\s]", ""),
                     requisition.getId());
-            AtomicReference<File> myObj = new AtomicReference<>(new File(fileName));
-//            myObj.get().mkdir();
-            LOGGER.info(myObj.get().createNewFile() ? "New file created: {}" : "File - {} already exists.", myObj.get().getName());
-            LOGGER.info(" FILE CREATION - RETRY (2) ENDED");
+            LOGGER.info(" FILE {}", fileName);
+            File myObj =  new File(fileName);
+            LOGGER.info(myObj.createNewFile() ? "New file created: {}" : "File - {} already exists.", myObj.getName());
+            LOGGER.info(" FILE CREATION - RETRY (2) ENDED SUCCESSFULLY");
             return fileName;
         } catch (IOException e) {
             LOGGER.error("[FILE-CREATION-FAILURE-2] - an error occurred.", e);
