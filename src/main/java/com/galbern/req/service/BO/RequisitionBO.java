@@ -181,7 +181,14 @@ public class RequisitionBO implements RequisitionService {
     public Requisition handleApproval(Long requisitionId, ApprovalStatus approvalStatus) {
         try {
             Requisition former = requisitionDao.findById(requisitionId).get();
-            former.setApprovalStatus(approvalStatus);
+            if (approvalStatus.equals(ApprovalStatus.REJECTED)) {
+                former.setApprovalStatus(ApprovalStatus.REJECTED);
+            } else {
+            former.setApprovalStatus(
+                    former.getApprovalStatus().equals(ApprovalStatus.RECEIVED)? ApprovalStatus.PARTIAL : ApprovalStatus.APPROVED
+            );
+            }
+
             LOGGER.info("REQUISITION-FETCHED-FOR-APPROVAL/REJECTION id:-   {} set to: {}", former.getId(), approvalStatus); // new Gson().toJson(former) fix this
             requisitionDao.save(former); // fix in prd
             return former;
