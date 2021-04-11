@@ -1,12 +1,18 @@
 package com.galbern.req.jpa.entities;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 
 @Entity(name = "UserCredentials")
 @Table(name = "USERCREDENTIALS")
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode
+@RequiredArgsConstructor
+@NoArgsConstructor
 public class UserCredentials {
 
     @Id
@@ -17,4 +23,32 @@ public class UserCredentials {
     @OneToOne
     @JoinColumn
     private User user;
+
+    @JsonIgnore
+    @Transient
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = bCryptPasswordEncoder.encode(password);
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

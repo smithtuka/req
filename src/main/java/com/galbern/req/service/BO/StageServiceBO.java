@@ -1,6 +1,6 @@
 package com.galbern.req.service.BO;
 
-import com.galbern.req.dao.StageDao;
+import com.galbern.req.jpa.dao.StageDao;
 import com.galbern.req.jpa.entities.Stage;
 import com.google.gson.Gson;
 import org.slf4j.Logger;

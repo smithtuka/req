@@ -1,6 +1,6 @@
 package com.galbern.req.service.BO;
 
-import com.galbern.req.dao.RequisitionDao;
+import com.galbern.req.jpa.dao.RequisitionDao;
 import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Item;

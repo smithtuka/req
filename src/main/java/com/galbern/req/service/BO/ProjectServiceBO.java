@@ -1,9 +1,7 @@
 package com.galbern.req.service.BO;
 
-import com.galbern.req.dao.ProjectDao;
-import com.galbern.req.jpa.entities.Item;
+import com.galbern.req.jpa.dao.ProjectDao;
 import com.galbern.req.jpa.entities.Project;
-import com.galbern.req.service.ProjectService;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.TransactionSystemException;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class ProjectServiceBO {
