@@ -183,7 +183,7 @@ public class RequisitionBO implements RequisitionService {
             Requisition former = requisitionDao.findById(requisitionId).get();
             if (approvalStatus.equals(ApprovalStatus.REJECTED)) {
                 former.setApprovalStatus(ApprovalStatus.REJECTED);
-            } else {
+            } else if (!approvalStatus.equals(ApprovalStatus.REJECTED)) {
             former.setApprovalStatus(
                     former.getApprovalStatus().equals(ApprovalStatus.RECEIVED)? ApprovalStatus.PARTIAL : ApprovalStatus.APPROVED
             );
