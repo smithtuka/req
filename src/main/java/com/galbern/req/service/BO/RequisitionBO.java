@@ -185,7 +185,7 @@ public class RequisitionBO implements RequisitionService {
                 former.setApprovalStatus(ApprovalStatus.REJECTED);
             } else if (!approvalStatus.equals(ApprovalStatus.REJECTED)) {
             former.setApprovalStatus(
-                    former.getApprovalStatus().equals(ApprovalStatus.RECEIVED)? ApprovalStatus.PARTIAL : ApprovalStatus.APPROVED
+                    former.getApprovalStatus().equals(ApprovalStatus.RECEIVED)? ApprovalStatus.AUTHORIZED : ApprovalStatus.APPROVED
             );
             }
 
