@@ -17,7 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 //// HAOM -- HIBERNATE4MODULE // actually 5 jar used here
 //
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 //
 //    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {

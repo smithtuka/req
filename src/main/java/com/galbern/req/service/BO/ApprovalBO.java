@@ -60,7 +60,7 @@ public class ApprovalBO {
             throw e;
         } finally {
 //            executorService.invokeAll(Arrays.asList());
-            if(!requisition.getApprovalStatus().equals(ApprovalStatus.PARTIAL) ) notify(requisition);
+            if(!requisition.getApprovalStatus().equals(ApprovalStatus.AUTHORIZED) ) notify(requisition);
 
         }
 

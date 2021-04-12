@@ -1,4 +1,4 @@
-package com.galbern.req.dao;
+package com.galbern.req.jpa.dao;
 
 import com.galbern.req.jpa.entities.Address;
 import org.springframework.data.repository.PagingAndSortingRepository;

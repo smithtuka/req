@@ -1,27 +1,16 @@
 package com.galbern.req.service.BO;
 
-import com.galbern.req.dao.AddressDao;
+import com.galbern.req.jpa.dao.AddressDao;
 import com.galbern.req.jpa.entities.Address;
 import com.galbern.req.service.AddressService;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
-import org.hibernate.cfg.Configuration;
-import org.hibernate.jpa.HibernateEntityManager;
-import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.hibernate.jpa.HibernateQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
