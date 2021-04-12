@@ -1,5 +1,6 @@
 package com.galbern.req.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,22 +11,25 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+//@Builder
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    private UserDetailsService userDetailsService;
+    @Autowired
+    private PasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
 
     private static final String[] AUTH_WHITELIST = {
 
-            "/v/api-docs",
+            "/v1/api-docs",
 
             "/swagger-resources",
 
@@ -37,18 +41,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
             "/swagger-ui.html",
 
-            "/webjars/**"
+            "/webjars/**",
+
+            "/v1/users/",
+            "/v1/users/user"
 
     };
 
 
-    public WebSecurityConfig(UserDetailsService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
-
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-
-        this.userDetailsService = userDetailsService;
-
-    }
+//    public WebSecurityConfig(UserDetailsService userDetailsService, PasswordEncoder bCryptPasswordEncoder) {
+//
+//        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+//
+//        this.userDetailsService = userDetailsService;
+//
+//    }
 
 
     protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -56,10 +63,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.cors().and().csrf().disable().authorizeRequests()
 
                 .antMatchers(AUTH_WHITELIST).permitAll()
-
-                .antMatchers(HttpMethod.POST, "/cachedemo/v/users/signup").permitAll()
-
-                .anyRequest().authenticated()
+                .antMatchers("/v1/users/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/v1/requisitions/**").permitAll()
+//                .anyRequest().authenticated()
 
                 .and().addFilter(new AuthenticationFilter(authenticationManager()))
 
@@ -88,7 +95,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
 }
 
 
-*/
+

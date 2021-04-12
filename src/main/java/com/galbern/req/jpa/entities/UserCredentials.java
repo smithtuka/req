@@ -11,8 +11,9 @@ import javax.persistence.*;
 @Getter
 @ToString
 @EqualsAndHashCode
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @NoArgsConstructor
+@Data
 public class UserCredentials {
 
     @Id
@@ -20,9 +21,9 @@ public class UserCredentials {
     private String username;
     @Column(name="password")
     private String password;
-    @OneToOne
-    @JoinColumn
-    private User user;
+//    @OneToOne
+//    @JoinColumn
+//    private User user;
 
     @JsonIgnore
     @Transient
@@ -32,23 +33,11 @@ public class UserCredentials {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = bCryptPasswordEncoder.encode(password);
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+//    public User getUser() {
+//        return user;
+//    }
+//
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
 }
