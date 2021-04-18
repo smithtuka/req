@@ -66,13 +66,13 @@ private JWTRequestFilter jwtRequestFilter;
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.cors().and().csrf().disable().authorizeRequests()
-                .antMatchers(AUTH_WHITELIST).permitAll()
+//                .antMatchers(AUTH_WHITELIST).permitAll()
                 .antMatchers("/v2/api-docs").permitAll()
                 .antMatchers(HttpMethod.GET, "/credentials/v1/login").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
-                .anyRequest().authenticated()
-                .and().csrf().ignoringAntMatchers("/h2-console/**")
-                .and().headers().frameOptions().sameOrigin();
+                .anyRequest().authenticated();
+//                .and().csrf().ignoringAntMatchers("/h2-console/**")
+//                .and().headers().frameOptions().sameOrigin();
 //                .and().addFilter(new AuthenticationFilter(authenticationManagerBean()))
 //                .addFilter(new AuthorizationFilter(authenticationManagerBean()))
 //                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

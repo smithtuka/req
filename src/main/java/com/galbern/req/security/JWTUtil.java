@@ -3,6 +3,7 @@ package com.galbern.req.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -13,13 +14,14 @@ import java.util.Map;
 @Component
 public class JWTUtil {
 
-    private String SECRET_KEY = "EBA6C1E853928762A48B68A58DD9E7D9EA2CEB16DD3357AE45881F5AB1";
+    @Value("credentials.key")
+    private String secretKey;
 
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact(); // add roles in authzn
+                .signWith(SignatureAlgorithm.HS256, secretKey).compact(); // add roles in authzn
     }
 
     public String extractUserName(String token) {
@@ -35,7 +37,7 @@ public class JWTUtil {
     }
 
     public Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody(); //.build().parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody(); //.build().parseClaimsJws(token).getBody();
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
