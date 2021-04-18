@@ -85,10 +85,10 @@ public class UserCredentialsController {
     }
     @ApiOperation(value = "get token", nickname = "token", notes = "used to create token")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "SUCCESS", response = Item.class),
+            @ApiResponse(code = 200, message = "SUCCESS", response = String.class),
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = UserCredentials.class)
     })
-    @GetMapping("/v1/token")
+    @GetMapping("/v1/login")
     public ResponseEntity<String> getToken(@RequestBody UserCredentials authCredentials){
         String userName = authCredentials.getUsername();
         try {

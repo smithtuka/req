@@ -84,7 +84,7 @@ public class UserDetailsController {
     @ApiOperation(value = "findUserByUsername", nickname = "findUserByUsername", notes = "use to find a User")
     @ApiResponses({
             @ApiResponse(code = 200, message = "SUCCESS", response = User.class),
-            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = User.class)
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = UserCredentials.class)
     })
     @GetMapping("/{username}")
     public @ResponseBody
