@@ -15,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -46,18 +47,6 @@ private JWTRequestFilter jwtRequestFilter;
 
     };
 
-
-//    public WebSecurityConfig(@Qualifier("userDetailsServiceImpl") UserDetailsServiceImpl userDetailsService, PasswordEncoder bCryptPasswordEncoder) {
-//
-//        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-//
-//        this.userDetailsService =  userDetailsService;
-//
-//    }
-
-
-
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         DaoAuthenticationConfigurer<AuthenticationManagerBuilder, UserDetailsServiceImpl> authenticationManagerBuilderUserDetailsServiceDaoAuthenticationConfigurer = auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
@@ -66,13 +55,15 @@ private JWTRequestFilter jwtRequestFilter;
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.cors().and().csrf().disable().authorizeRequests()
-//                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers(AUTH_WHITELIST).permitAll()
                 .antMatchers("/v2/api-docs").permitAll()
                 .antMatchers(HttpMethod.GET, "/credentials/v1/login").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
-                .anyRequest().authenticated();
-//                .and().csrf().ignoringAntMatchers("/h2-console/**")
-//                .and().headers().frameOptions().sameOrigin();
+                .anyRequest().authenticated()
+                .and().csrf().ignoringAntMatchers("/h2-console/**")
+                .and().headers().frameOptions().sameOrigin()
+                .and().sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);;
 //                .and().addFilter(new AuthenticationFilter(authenticationManagerBean()))
 //                .addFilter(new AuthorizationFilter(authenticationManagerBean()))
 //                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
