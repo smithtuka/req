@@ -63,7 +63,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
         if (token != null) {
 
-            String user = Jwts.parser().setSigningKey("SecretKeyToGenJWTs".getBytes())
+            String user = Jwts.parser().setSigningKey("zdtlD3JK56m6wTTgsNFhqzjqP".getBytes())
 
                     .parseClaimsJws(token.replace("Bearer", ""))
 
