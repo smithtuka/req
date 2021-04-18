@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserDao extends PagingAndSortingRepository<User,Long> {
-    User findByEmail(String username);
+    User findByEmail(String email);
+//    org.springframework.security.core.userdetails.User findByUsername(String userName);
 }

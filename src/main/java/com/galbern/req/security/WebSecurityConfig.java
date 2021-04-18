@@ -1,10 +1,13 @@
 package com.galbern.req.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -12,13 +15,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-//@Builder
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -26,79 +29,80 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
+@Autowired
+private JWTRequestFilter jwtRequestFilter;
 
     private static final String[] AUTH_WHITELIST = {
 
             "/v1/api-docs",
-
             "/swagger-resources",
-
             "/swagger-resources/**",
-
             "/configuration/ui",
-
             "/configuration/security",
-
             "/swagger-ui.html",
-
             "/webjars/**",
-
             "/v1/users/",
             "/v1/users/user"
 
     };
 
 
-//    public WebSecurityConfig(UserDetailsService userDetailsService, PasswordEncoder bCryptPasswordEncoder) {
+//    public WebSecurityConfig(@Qualifier("userDetailsServiceImpl") UserDetailsServiceImpl userDetailsService, PasswordEncoder bCryptPasswordEncoder) {
 //
 //        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 //
-//        this.userDetailsService = userDetailsService;
+//        this.userDetailsService =  userDetailsService;
 //
 //    }
 
 
+
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        DaoAuthenticationConfigurer<AuthenticationManagerBuilder, UserDetailsServiceImpl> authenticationManagerBuilderUserDetailsServiceDaoAuthenticationConfigurer = auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+    }
+
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.cors().and().csrf().disable().authorizeRequests()
-
                 .antMatchers(AUTH_WHITELIST).permitAll()
-                .antMatchers("/v1/users/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/login").permitAll()
-                .antMatchers(HttpMethod.GET, "/v1/requisitions/**").permitAll()
-//                .anyRequest().authenticated()
+//                .antMatchers(HttpMethod.POST, "/users/v1/**").permitAll()
+//                .antMatchers(HttpMethod.GET, "/login").permitAll()
+//                .antMatchers(HttpMethod.GET, "/v1/requisitions/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/credentials/v1/token").permitAll()
+                .antMatchers("/h2-console/**").permitAll()
+                .anyRequest().authenticated()
+                .and().csrf().ignoringAntMatchers("/h2-console/**")
+                .and().headers().frameOptions().sameOrigin();
+//                .and().addFilter(new AuthenticationFilter(authenticationManagerBean()))
+//                .addFilter(new AuthorizationFilter(authenticationManagerBean()))
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-                .and().addFilter(new AuthenticationFilter(authenticationManager()))
-
-                .addFilter(new AuthorizationFilter(authenticationManager()))
-
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-    }
-
-
-    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
-
+        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
-
         return source;
-
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    @Override
+    @Qualifier("authenticationManager")
+    public AuthenticationManager authenticationManagerBean() throws
+            Exception {
+        return super.authenticationManagerBean();
+    }
+
 
 }
 

@@ -26,14 +26,14 @@ INSERT INTO USERS(FIRST_NAME, LAST_NAME, ROLE, ADDRESS_ID, EMAIL) VALUES
 DROP TABLE IF EXISTS USERCREDENTIALS;
 CREATE TABLE USERCREDENTIALS(
                    USERNAME VARCHAR(30) PRIMARY KEY,
-                   PASSWORD VARCHAR(30),
-                   IS_ACTIVE BOOLEAN,
-                   USER_ID BIGINT(3)
+                   PASSWORD VARCHAR(120),
+                   ACTIVE BOOLEAN,
+                   ROLE VARCHAR(10)
 );
-INSERT INTO USERCREDENTIALS( USERNAME, PASSWORD, USER_ID, IS_ACTIVE ) VALUES
-( 'smithtuka', 'abcd1234',  1, TRUE),
-( 'breash', 'abcd1234',  2, FALSE),
-( 'nantunga', 'abcd1234', 3, TRUE);
+INSERT INTO USERCREDENTIALS( USERNAME, PASSWORD, ROLE, ACTIVE ) VALUES
+( 'smithtuka', 'abcd1234567',  'ADMIN', TRUE),
+( 'breash', 'abcd1234',  'USER', FALSE),
+( 'nantunga', '$2a$10$xdruRph9m4o7upnWq7Mu8OXH/3jw8edKG/uc1vOCM.tZ06jGjwKpG', 'ADMIN', TRUE);
 
 
 -- COMMENTS
