@@ -34,7 +34,7 @@ private JWTRequestFilter jwtRequestFilter;
 
     private static final String[] AUTH_WHITELIST = {
 
-            "/v1/api-docs",
+            "/v2/api-docs",
             "/swagger-resources",
             "/swagger-resources/**",
             "/configuration/ui",
@@ -67,6 +67,7 @@ private JWTRequestFilter jwtRequestFilter;
 
         httpSecurity.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers("/v2/api-docs").permitAll()
 //                .antMatchers(HttpMethod.POST, "/users/v1/**").permitAll()
 //                .antMatchers(HttpMethod.GET, "/login").permitAll()
 //                .antMatchers(HttpMethod.GET, "/v1/requisitions/**").permitAll()
