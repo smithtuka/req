@@ -1,7 +1,9 @@
 package com.galbern.req.security;
 
+import com.galbern.req.constants.RmsConstants;
 import com.galbern.req.jpa.dao.UserCredentialsDao;
 import com.galbern.req.jpa.entities.UserCredentials;
+import io.jsonwebtoken.lang.Strings;
 import org.hibernate.boot.model.relational.Loggable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +32,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -118,9 +125,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("*");
+//        config.addAllowedOrigin("*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        config.setMaxAge(600l);
+//        config.setAllowedOrigins(Collections.singletonList("*"));
+        config.setAllowedOriginPatterns(List.of("http://localhost:3001", "http://localhost:3000", "https://rmsx.herokuapp.com","https://dashboard.heroku.com/apps/rmsx"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
