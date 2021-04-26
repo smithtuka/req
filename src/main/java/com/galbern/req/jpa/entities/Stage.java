@@ -40,6 +40,7 @@ public class Stage {
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //    @JsonIgnore
+//    @Fetch(FetchMode.SELECT)
     private Project project;
 
     @OneToMany(mappedBy = "stage", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

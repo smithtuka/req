@@ -12,4 +12,6 @@ public class RmsConstants {
     public String jdbcUrl="jdbc:postgresql://ec2-35-171-57-132.compute-1.amazonaws.com:5432/d9n3s3inbo9qpn?user=ndniyttbkfzvad&password=ed5e4589b8ea410ae56eef4327cd508f4242014340d9e70d46ac3540b6b45153";
     @Value("${sign.up.feature.flag:true}")
     public boolean signUpFeatureFlag;
+    @Value("${allowed.origins:https://rmsx.herokuapp.com}")
+    public String allowedOrigins;
 }
