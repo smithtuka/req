@@ -1,10 +1,7 @@
 package com.galbern.req.jpa.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -15,11 +12,13 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper=false)
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name ="USERS")
 @DynamicUpdate
 @DynamicInsert
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Builder(toBuilder = true)
 public class User extends Person implements Serializable { // class of composite Ids must implement serializable public static final Long serialVersionUID = 1l;
 
     @Id
