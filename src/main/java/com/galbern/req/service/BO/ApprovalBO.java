@@ -12,9 +12,13 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.function.Consumer;
 
 
 @Service
@@ -30,23 +34,40 @@ public class ApprovalBO {
 
     private ExecutorService executorService = Executors.newCachedThreadPool(); // use later
 
-    public void notify(Requisition requisition) throws IOException, MessagingException {
-        String subject = String.format("Requisition %s by {} {}",
+    public void asyncNotify(Requisition requisition) throws IOException, MessagingException {
+        String subject = String.format("Requisition %s by %s %s",
                 requisition.getId(), (requisition.getRequester()).getFirstName(), requisition.getApprovalStatus());
         File file = excelUtil.findRequisitionFile(requisition);
-        try{
+//        try{
 //            LOGGER.info("starting to notify about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""));
-            mailService.sendGcwMail(subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
-                    String.format("%s", requisitionBO.computeRequisitionAmount(requisition.getId())),
-                            Arrays.asList(requisition.getRequester().getEmail()), file);
-        } catch (MessagingException | IOException e) {
-            LOGGER.error("Exception notifying about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""), e);
-            throw e;
-        }
+            ForkJoinPool pool = new ForkJoinPool(2);
+            pool.submit( () -> List.of(requisition).parallelStream()
+            .forEach(requisition1 -> buildConsumer(requisition, subject, file).accept(requisition)));
+//            mailService.sendGcwMail(subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
+//                    String.format("%s", requisitionBO.computeRequisitionAmount(requisition.getId())),
+//                            Arrays.asList(requisition.getRequester().getEmail()), file);
+//        } catch (MessagingException | IOException e) {
+//            LOGGER.error("Exception notifying about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""), e);
+//            throw e;
+//        }
+    }
+
+    private Consumer buildConsumer(Requisition requisition, String subject, File file) {
+        return request -> {
+            LOGGER.info("sending email");
+            try{
+                mailService.sendGcwMail(subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
+                        String.format("%s", requisitionBO.computeRequisitionAmount(requisition.getId())),
+                        Arrays.asList(requisition.getRequester().getEmail()), file);
+            } catch (MessagingException | IOException e) {
+                LOGGER.error("Exception notifying about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""), e);
+            }
+
+        };
     }
 
     public void createRequisition(Requisition requisition) throws IOException, MessagingException {
-        notify(requisition);
+        asyncNotify(requisition);
     }
 
     public String handleApproval(Long requisitionId, ApprovalStatus approvalStatus) throws IOException, MessagingException, InterruptedException {
@@ -60,7 +81,7 @@ public class ApprovalBO {
             throw e;
         } finally {
 //            executorService.invokeAll(Arrays.asList());
-            if(!requisition.getApprovalStatus().equals(ApprovalStatus.AUTHORIZED) ) notify(requisition);
+            if(!requisition.getApprovalStatus().equals(ApprovalStatus.AUTHORIZED) ) asyncNotify(requisition);
 
         }
 
