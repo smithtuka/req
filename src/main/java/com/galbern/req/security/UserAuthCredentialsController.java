@@ -4,10 +4,6 @@ import com.galbern.req.constants.RmsConstants;
 import com.galbern.req.jpa.dao.UserCredentialsDao;
 import com.galbern.req.jpa.entities.Item;
 import com.galbern.req.jpa.entities.UserCredentials;
-import com.galbern.req.utilities.ExcelUtil;
-import com.sun.mail.iap.Response;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,25 +14,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 import static java.lang.String.format;
 
 @RestController
 @RequestMapping("/api/public")
-@Api("user credentials")
-public class UserCredentialsController {
+@Api("user auth credentials")
+public class UserAuthCredentialsController {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(UserCredentialsController.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(UserAuthCredentialsController.class);
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
     @Autowired
@@ -100,7 +93,7 @@ public class UserCredentialsController {
             user = userCredentialsDao.save(user);
 //            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(),
 //                    user.getPassword(), List.of(roles)));
-            LOGGER.info("NEW CREDENTIALS :: {} :: DETAILS :: {}", user.toString()); // auth.getDetails().toString()
+            LOGGER.info("NEW CREDENTIALS :: {} :: DETAILS :: {}", user.toString(), response); // auth.getDetails().toString()
             response = user;
         } catch (
                 DisabledException e) {

@@ -8,12 +8,13 @@ CREATE TABLE USERS(ID BIGINT(3) PRIMARY KEY AUTO_INCREMENT, -- IDENTITY
                       ROLE VARCHAR(10),
                       EMAIL VARCHAR(60),
                       ADDRESS_ID BIGINT(3),
-                      PHONE VARCHAR(30)
+                      PHONE VARCHAR(30),
+                      USER_NAME VARCHAR(12)
                   );
 INSERT INTO USERS(FIRST_NAME, LAST_NAME, ROLE, ADDRESS_ID, EMAIL) VALUES
-('Smith', 'TUKA',  'ADMIN', 1, 'smithtuka@gmail.com'),
+-- ('Smith', 'TUKA',  'ADMIN', 1, 'smithtuka@gmail.com'),
 ('Brendah', 'Ashabahebwa', 'ACCOUNTANT', 2, 'rms.galbern@gmail.com'),
-('Alice', 'Nantunga',  'ADMIN', 1, 'nantunga@gmail.com'),
+-- ('Alice', 'Nantunga',  'ADMIN', 1, 'nantunga@gmail.com'),
 ('Edward', 'Muhoozi', 'CUSTOMER',4, 'rms.galbern@gmail.com'),
 ('Edwin', 'Aruho',  'CUSTOMER', 2, 'rms.galbern@gmail.com'),
 ('Brenda', 'Nyenga',  'CUSTOMER', 3, 'rms.galbern@gmail.com'),
@@ -21,6 +22,9 @@ INSERT INTO USERS(FIRST_NAME, LAST_NAME, ROLE, ADDRESS_ID, EMAIL) VALUES
 ('SuperDeal HW', 'Ltd', 'SUPPLIER', 1, 'rms.galbern@gmail.com'),
 ('Shamim and', 'Shifa', 'SUPPLIER', 2, 'rms.galbern@gmail.com'),
 ('Hardware World', 'Ltd, NTINDA', 'SUPPLIER', 1, 'rms.galbern@gmail.com');
+INSERT INTO USERS(FIRST_NAME, LAST_NAME, ROLE, ADDRESS_ID, EMAIL, USER_NAME) VALUES
+('Smith', 'TUKA',  'ADMIN', 1, 'smithtuka@gmail.com','smithtuka'),
+('Alice', 'Nantunga',  'ADMIN', 1, 'nantunga@gmail.com','nantunga');
 
 -- USERCREDENTIALS
 DROP TABLE IF EXISTS USERCREDENTIALS;

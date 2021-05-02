@@ -28,6 +28,7 @@ public class User extends Person implements Serializable { // class of composite
     private String email;
     @Enumerated(EnumType.STRING) // otherwise wd automatically be mapped to value 0--- (ORDINAL)
     private Role role;
+    private String userName;
 
 
 

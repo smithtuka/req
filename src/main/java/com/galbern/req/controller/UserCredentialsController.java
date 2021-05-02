@@ -1,6 +1,7 @@
 package com.galbern.req.controller;
 
 import com.galbern.req.jpa.dao.UserCredentialsDao;
+import com.galbern.req.jpa.dao.UserDao;
 import com.galbern.req.jpa.entities.User;
 import com.galbern.req.jpa.entities.UserCredentials;
 import io.swagger.annotations.Api;
@@ -16,16 +17,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-  
-@Api(value = "controller for RMS service version v1", tags={"RMSV1UserController"})
+
+@Api(value = "controller for RMS service version v1", tags={"RMSV1UserDetailsController"})
 @RestController
-@RequestMapping("/v1/users")
-public class UserDetailsController {
+@RequestMapping("/users")
+public class UserCredentialsController {
 
     @Autowired
     private UserCredentialsDao userCredentialsDao;
 
-    public static Logger  LOGGER = LoggerFactory.getLogger(com.galbern.req.controller.UserDetailsController.class);
+    @Autowired
+    private UserDao userDao;
+
+    public static Logger  LOGGER = LoggerFactory.getLogger(UserCredentialsController.class);
 
 
     @ApiOperation(value = "ping", nickname = "ping", notes = "to ping")
@@ -42,8 +46,8 @@ public class UserDetailsController {
 
     @ApiOperation(value = "createUser", nickname = "createAUser", notes = "use to create a User")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "SUCCESS", response = User.class),
-            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = User.class)
+            @ApiResponse(code = 200, message = "SUCCESS", response = UserCredentials.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = UserCredentials.class)
     })
     @PostMapping
     public @ResponseBody
@@ -62,8 +66,8 @@ public class UserDetailsController {
 
     @ApiOperation(value = "findUsers", nickname = "GetUser", notes = "use to find all Users")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "SUCCESS", response = User.class),
-            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = User.class)
+            @ApiResponse(code = 200, message = "SUCCESS", response = UserCredentials.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = UserCredentials.class)
     })
     @GetMapping
     public @ResponseBody
@@ -83,7 +87,7 @@ public class UserDetailsController {
 
     @ApiOperation(value = "findUserByUsername", nickname = "findUserByUsername", notes = "use to find a User")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "SUCCESS", response = User.class),
+            @ApiResponse(code = 200, message = "SUCCESS", response = UserCredentials.class),
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = UserCredentials.class)
     })
     @GetMapping("/{username}")
@@ -92,6 +96,24 @@ public class UserDetailsController {
         try {
             LOGGER.info("Get /v1/user by username in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(userCredentialsDao.findById(userName).get(), HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error("error - failed to find a single UserDetails", e);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+    @ApiOperation(value = "findUserByUsername", nickname = "findUserByUsername", notes = "use to find a User")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS", response = UserCredentials.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = UserCredentials.class)
+    })
+    @GetMapping("/v1/{username}")
+    public @ResponseBody
+    ResponseEntity<User> fetchUser(@PathVariable("username") String userName) {
+        try {
+            LOGGER.info("Get /v1/user by username in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
+            return  ResponseEntity.ok(userDao.findUserByUserName(userName).orElseGet(() -> User.builder().build()));
         } catch (Exception e) {
             LOGGER.error("error - failed to find a single UserDetails", e);
         }
