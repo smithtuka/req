@@ -1,8 +1,11 @@
 package com.galbern.req.controller;
 
+import com.galbern.req.dto.RequisitionStageDto;
 import com.galbern.req.exception.RequisitionExecutionException;
+import com.galbern.req.jpa.dao.StageDao;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
+import com.galbern.req.jpa.entities.Stage;
 import com.galbern.req.service.BO.ApprovalBO;
 import com.galbern.req.service.BO.RequisitionBO;
 import io.swagger.annotations.Api;
@@ -33,6 +36,8 @@ public class RequisitionsController {
     private RequisitionBO requisitionBO;
     @Autowired
     private ApprovalBO approvalBO;
+    @Autowired
+    private StageDao stageDao;
 
     @ApiOperation(value = "ping", nickname = "ping", notes = "to ping")
     @ApiResponses({
@@ -51,9 +56,18 @@ public class RequisitionsController {
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = Requisition.class)
     })
     @PostMapping
-    public ResponseEntity<Requisition> makeRequisition(@RequestBody Requisition requisition){
+    public ResponseEntity<Requisition> makeRequisition(@RequestBody RequisitionStageDto requisitionDto){
 
         try {
+            Stage stage = stageDao.findById(requisitionDto.getStage()).get();
+            Requisition requisition = Requisition.builder()
+                    .id(requisitionDto.getId())
+                    .approvalStatus(requisitionDto.getApprovalStatus())
+                    .requester(requisitionDto.getRequester())
+                    .createdAt(requisitionDto.getCreatedAt())
+                    .requiredDate(requisitionDto.getRequiredDate())
+                    .items(requisitionDto.getItems())
+                    .stage(stage).build();
             LOGGER.info("POST /v1/requisitions for Requester ID :: {}", requisition.getRequester().getId());
             return new ResponseEntity<>(requisitionBO.createRequisition(requisition), HttpStatus.OK);
         } catch (Exception e){
