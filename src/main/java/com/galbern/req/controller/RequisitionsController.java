@@ -54,7 +54,7 @@ public class RequisitionsController {
     public ResponseEntity<Requisition> makeRequisition(@RequestBody Requisition requisition){
 
         try {
-            LOGGER.info("POST /v1/requisitions in {}", requisition.getRequester().getId());
+            LOGGER.info("POST /v1/requisitions for Requester ID :: {}", requisition.getRequester().getId());
             return new ResponseEntity<>(requisitionBO.createRequisition(requisition), HttpStatus.OK);
         } catch (Exception e){
             LOGGER.error("[REQUISITION-CREATION-FAILURE]- failed to create requisition", e);
