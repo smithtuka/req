@@ -61,7 +61,7 @@ public class RequisitionsController {
         try {
             Stage stage = stageDao.findById(requisitionDto.getStage()).get();
             Requisition requisition = Requisition.builder()
-                    .id(requisitionDto.getId())
+//                    .id(requisitionDto.getId())
                     .approvalStatus(requisitionDto.getApprovalStatus())
                     .requester(requisitionDto.getRequester())
                     .createdAt(requisitionDto.getCreatedAt())
