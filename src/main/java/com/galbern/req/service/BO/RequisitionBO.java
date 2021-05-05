@@ -207,7 +207,7 @@ public class RequisitionBO implements RequisitionService {
     public List<Requisition> findAllRequisitions() {
         try {
             LOGGER.info("fetching all the requisitions");
-        return requisitionDao.findAll(Sort.by("createdAt"));
+        return requisitionDao.findAll(Sort.by("createdAt").descending());
 //            return requisitionDao.findAll();
         } catch( Exception e){
             LOGGER.error("EXCEPTION FETCHING ALL REQUISITIONS :: {}", e.getCause(), e);
