@@ -110,8 +110,9 @@ public class RequisitionBO implements RequisitionService {
                                               ApprovalStatus approvalStatus,
                                               Date submissionDate) {
         try {
-            if (null==stageIds && null==projectIds && null==requesterIds && null==approvalStatus && null==submissionDate)
-                return determineRequisitions("ALL", null, null, null, null, null);
+            if (null==stageIds && null==projectIds && null==requesterIds && null==approvalStatus && null==submissionDate){
+                LOGGER.info("FETCHING ALL REQUISITIONS");
+                return determineRequisitions("ALL", null, null, null, null, null);}
             else if (null!=stageIds && null==projectIds && null==requesterIds && null==approvalStatus && null==submissionDate){
                 return determineRequisitions("STAGES", stageIds, projectIds, requesterIds, approvalStatus, submissionDate);
             }  else if (null==stageIds && null!=projectIds && null==requesterIds && null==approvalStatus && null==submissionDate){
