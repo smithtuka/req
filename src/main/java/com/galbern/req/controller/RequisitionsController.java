@@ -36,8 +36,6 @@ public class RequisitionsController {
     private RequisitionBO requisitionBO;
     @Autowired
     private ApprovalBO approvalBO;
-    @Autowired
-    private StageDao stageDao;
 
     @ApiOperation(value = "ping", nickname = "ping", notes = "to ping")
     @ApiResponses({
@@ -56,18 +54,9 @@ public class RequisitionsController {
             @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = Requisition.class)
     })
     @PostMapping
-    public ResponseEntity<Requisition> makeRequisition(@RequestBody RequisitionStageDto requisitionDto){
+    public ResponseEntity<Requisition> makeRequisition(@RequestBody Requisition requisition){
 
         try {
-            Stage stage = stageDao.findById(requisitionDto.getStage()).get();
-            Requisition requisition = Requisition.builder()
-//                    .id(requisitionDto.getId())
-                    .approvalStatus(requisitionDto.getApprovalStatus())
-                    .requester(requisitionDto.getRequester())
-                    .createdAt(requisitionDto.getCreatedAt())
-                    .requiredDate(requisitionDto.getRequiredDate())
-                    .items(requisitionDto.getItems())
-                    .stage(stage).build();
             LOGGER.info("POST /v1/requisitions for Requester ID :: {}", requisition.getRequester().getId());
             return new ResponseEntity<>(requisitionBO.createRequisition(requisition), HttpStatus.OK);
         } catch (Exception e){

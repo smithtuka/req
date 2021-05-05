@@ -1,7 +1,7 @@
 package com.galbern.req.service.BO;
 
-import com.galbern.req.jpa.dao.RequisitionDao;
 import com.galbern.req.exception.RequisitionExecutionException;
+import com.galbern.req.jpa.dao.RequisitionDao;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Item;
 import com.galbern.req.jpa.entities.Requisition;
@@ -45,7 +45,8 @@ public class RequisitionBO implements RequisitionService {
             TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public Requisition createRequisition(Requisition requisition) throws IOException, MessagingException {
         try{
-            return requisitionDao.save(requisition);
+//            return requisitionDao.save(requisition);
+            return requisitionDao.saveAndFlush(requisition);
         } catch (Exception ex){
             LOGGER.error("[REQUISITION-CREATION-FAILURE] - failed to persist a requisition {}", new Gson().toJson(requisition).replaceAll("[\r\n]+", ""), ex);
             mailService.sendGcwMail(String.format("Requisition-%s creation failed {}\n{}", requisition.getId()),
@@ -190,7 +191,7 @@ public class RequisitionBO implements RequisitionService {
             }
 
             LOGGER.info("REQUISITION-FETCHED-FOR-APPROVAL/REJECTION id:-   {} set to: {}", former.getId(), approvalStatus); // new Gson().toJson(former) fix this
-            requisitionDao.save(former); // fix in prd
+            requisitionDao.save(former);
             return former;
         } catch (Exception ex){
             LOGGER.error("REQUISITION-APPROVAL-FAILURE - failed to update  {}", requisitionId);
