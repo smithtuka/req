@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.data.domain.Sort;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -197,6 +198,20 @@ public class RequisitionBO implements RequisitionService {
         } catch (Exception ex){
             LOGGER.error("REQUISITION-APPROVAL-FAILURE - failed to update  {}", requisitionId);
             throw ex;
+        }
+    }
+
+    @Retryable(value = {DataAccessResourceFailureException.class,
+            TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
+    @Override
+    public List<Requisition> findAllRequisitions() {
+        try {
+            LOGGER.info("fetching all the requisitions");
+        return requisitionDao.findAll(Sort.by("createdAt"));
+//            return requisitionDao.findAll();
+        } catch( Exception e){
+            LOGGER.error("EXCEPTION FETCHING ALL REQUISITIONS :: {}", e.getCause(), e);
+            throw e;
         }
     }
 }

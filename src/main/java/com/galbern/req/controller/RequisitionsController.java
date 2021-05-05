@@ -8,6 +8,7 @@ import com.galbern.req.jpa.entities.Requisition;
 import com.galbern.req.jpa.entities.Stage;
 import com.galbern.req.service.BO.ApprovalBO;
 import com.galbern.req.service.BO.RequisitionBO;
+import com.galbern.req.service.RequisitionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -33,7 +34,7 @@ public class RequisitionsController {
 
     public static Logger LOGGER = LoggerFactory.getLogger(RequisitionsController.class);
     @Autowired
-    private RequisitionBO requisitionBO;
+    private RequisitionService requisitionBO;
     @Autowired
     private ApprovalBO approvalBO;
 
@@ -100,6 +101,16 @@ public class RequisitionsController {
         try{
             LOGGER.info("GET /v1/requisitions {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(requisitionBO.findRequisitions(stageIds, projectIds, requesterIds, approvalStatus, submissionDate), HttpStatus.OK);
+        } catch (RequisitionExecutionException ex){
+            LOGGER.error("error executing findRequisitions - GENERAL in handler", ex);
+            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<Requisition>> findAllRequisitions(){
+        try{
+            LOGGER.info("GET /v1/requisitions/all {}", Thread.currentThread().getStackTrace()[1].getMethodName());
+            return new ResponseEntity<>(requisitionBO.findAllRequisitions(), HttpStatus.OK);
         } catch (RequisitionExecutionException ex){
             LOGGER.error("error executing findRequisitions - GENERAL in handler", ex);
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
