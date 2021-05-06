@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-@Configuration
 public class StageBudgetMonitor {
 
     public static Logger LOGGER = LoggerFactory.getLogger(StageBudgetMonitor.class);
@@ -39,7 +37,7 @@ public class StageBudgetMonitor {
     @Value("${default.email.recipient.list}")
     public String defaultEmailRecipients;
 
-    @Scheduled(cron = "${stage.budget.monitoring.cron}", zone ="America/New_York") // implement checks upon submission of fresh requisition
+    @Scheduled(cron = "0 0/30 * * * ?") // implement checks upon submission of fresh requisition
     public void checkStageBudgetStatus(){
         LOGGER.info("STAGE BUDGET STATUS CHECK SCHEDULER - STARTED");
 
