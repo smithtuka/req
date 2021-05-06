@@ -83,4 +83,16 @@ public class StageServiceBO {
         }
     }
 
+
+    @Retryable(value = {DataAccessResourceFailureException.class, TransactionSystemException.class, CannotCreateTransactionException.class},
+            maxAttempts = 2, backoff = @Backoff(delay = 500))
+    public List<Stage> findStagesByActive(Boolean active) {
+        try {
+            return stageDao.findStagesByIsActive(active);
+        } catch (Exception e) {
+            LOGGER.error("ERROR - FINDING ACTIVE STAGES ", e);
+            throw e;
+        }
+    }
+
 }

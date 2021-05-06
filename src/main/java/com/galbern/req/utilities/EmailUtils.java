@@ -67,17 +67,20 @@ public class EmailUtils {
             recipientEmails.forEach(mailAddress -> {
                 try {
                     message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailAddress));
-                    if(null!=file) sendMultipartMail(message,
+                    if(null!=file && file.exists() && file.isFile()){ sendMultipartMail(message,
                             file,
-                            messageText);
+                            messageText);}
+                    else{
+                        message.setSubject(subjectText);
+                        message.setText(messageText);
+                        Transport.send(message);
+                        LOGGER.info("Sent from Gmail messages successfully....{}", recipientEmails.toString());
+                    }
                 } catch (MessagingException e) {
-                    LOGGER.debug("[GMAIL-FAILURE] failure to set recipient address  ", e);
+                    LOGGER.error("[GMAIL-FAILURE] failure to set recipient address  :: {}", recipientEmails.toString(), e);
                 }
             });
-            message.setSubject(subjectText);
-            message.setText(messageText);
-            Transport.send(message);
-            LOGGER.info("Sent from Gmail messages successfully....");
+
         } catch (MessagingException mex) {
             LOGGER.error("[GMAIL-FAILURE] - dispatch failure for {} ", recipientEmails, mex);
             return "failed";
@@ -111,13 +114,18 @@ public class EmailUtils {
                 try {
                     message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailAddress));
                     message1.set(message);
-                    if (null != file) sendMultipartMail(message, file, messageText);
+                    if (null != file && file.exists() && file.isFile()) {
+                        sendMultipartMail(message, file, messageText);
+                    } else {
+                        message.setSubject(subjectText);
+                        message.setText(messageText);
+                        Transport.send(message);
+                    }
+
                 } catch (MessagingException e) {
                     LOGGER.debug("failure to set recipient address  in GalbernMail", e);
                 }
             });
-            message.setText(messageText);
-            Transport.send(message);
         } catch (MessagingException mex) {
             LOGGER.error("[GCW-MAIL-FAILURE] GCW Mail dispatch failed to send for {} to {}", message1.get().getContent().toString(), recipientMails, mex);
             return "failed";
@@ -163,5 +171,48 @@ public class EmailUtils {
                 this.sendByGmail(subjectText,messageText,recipientMails,file) ;
         }
 
+
+//    public String sendSimpleGmail(String subjectText,
+//                              String messageText,
+//                              List<String> recipientEmails) {
+//        LOGGER.info("sendSimpleGMail - entering");
+//
+//        // Get system properties
+//        Properties properties = System.getProperties();
+//        properties.put("mail.smtp.host", gmailHost);
+//        properties.put("mail.smtp.port", "465");
+//        properties.put("mail.smtp.ssl.enable", "true");
+//        properties.put("mail.smtp.auth", "true");
+//
+//        // Get the default Session object.
+//        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+//            protected PasswordAuthentication getPasswordAuthentication() {
+//                return new PasswordAuthentication("rms.galbern", secret);
+//            }
+//        });
+//
+//        session.setDebug(true);
+//
+//        try {
+//            // Create a default MimeMessage object.
+//            MimeMessage message = new MimeMessage(session);
+//            message.setFrom(new InternetAddress(defaultFromEmail1));
+//            recipientEmails.forEach(mailAddress -> { // forkPool candidate
+//                try {
+//                    message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailAddress));
+//                    message.setSubject(subjectText);
+//                    message.setText(messageText);
+//                    Transport.send(message);
+//                } catch (MessagingException e) {
+//                    LOGGER.debug("[SIMPLE-GMAIL-FAILURE] failure to set recipient address  ", e);
+//                }
+//            });
+//            LOGGER.info("Sent from Gmail messages successfully to {}", (defaultFromEmail+recipientEmails.toString().replace("[","").replace("]","")));
+//        } catch (MessagingException mex) {
+//            LOGGER.error("[SIMPLE-GMAIL-FAILURE] - dispatch failure for :: {} ", recipientEmails, mex);
+//            return "failed";
+//        }
+//        return "success";
+//    }
 
 }

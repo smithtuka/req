@@ -1,9 +1,11 @@
 package com.galbern.req.constants;
 
+import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import org.springframework.beans.factory.annotation.Value;
 
 @UtilityClass
+@Getter
 public class RmsConstants {
     public static final String APP_NAME = "RMS";
     public static final String URL = "www.galbern.com";
@@ -14,4 +16,6 @@ public class RmsConstants {
     public boolean signUpFeatureFlag;
     @Value("${allowed.origins:https://rmsx.herokuapp.com}")
     public String allowedOrigins;
+    @Value("${default.email.recipient.list}")
+    public static String defaultEmailRecipients="galberncw@gmail.com";
 }

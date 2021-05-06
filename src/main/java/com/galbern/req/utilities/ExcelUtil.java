@@ -80,7 +80,7 @@ public class ExcelUtil {
         row.createCell(3).setCellValue(String.valueOf(item.getPrice()));
 
         Cell ageCell = row.createCell(3);
-        ageCell.setCellValue(String.valueOf(item.getPrice().multiply(item.getQuantity())));
+        ageCell.setCellValue(String.valueOf(item.getPrice().multiply(item.getQuantity()))); //
         ageCell.setCellStyle(amountCellStyle);
     }
 
