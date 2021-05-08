@@ -37,7 +37,7 @@ public class StageBudgetMonitor {
     @Value("${default.email.recipient.list}")
     public String defaultEmailRecipients;
 
-    @Scheduled(cron = "0 0/30 * * * ?") // implement checks upon submission of fresh requisition
+    @Scheduled(cron = "0 0/30 10 * * ?") // implement checks upon submission of fresh requisition
     public void checkStageBudgetStatus(){
         LOGGER.info("STAGE BUDGET STATUS CHECK SCHEDULER - STARTED");
 
