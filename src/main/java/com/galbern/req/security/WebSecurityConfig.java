@@ -128,14 +128,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
 //        config.addAllowedOrigin("*");
-//        config.addAllowedHeader("*");
-        config.setAllowedHeaders(Arrays.asList("Access-Control-Allow-Headers", "Access-Control-Allow-Origin",
-                "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin",
-                "Cache-Control", "Content-Type"));
+        config.addAllowedHeader("*");
+//        config.setAllowedHeaders(Arrays.asList("Access-Control-Allow-Headers", "Access-Control-Allow-Origin",
+//                "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin",
+//                "Cache-Control", "Content-Type"));
         config.addAllowedMethod("*");
         config.setMaxAge(600l);
-        config.setAllowedOrigins(Collections.singletonList("*"));
-//        config.setAllowedOriginPatterns(List.of("http://localhost:3001", "http://localhost:3000", "https://rmsx.herokuapp.com","http://rmsx.herokuapp.com","rmsx.herokuapp.com"));
+//        config.setAllowedOrigins(Collections.singletonList("*"));
+        config.setAllowedOriginPatterns(List.of("http://localhost:3001", "http://localhost:3000", "https://rmsx.herokuapp.com","http://rmsx.herokuapp.com","rmsx.herokuapp.com"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
