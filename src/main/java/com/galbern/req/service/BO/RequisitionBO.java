@@ -1,10 +1,10 @@
 package com.galbern.req.service.BO;
 
+import com.galbern.req.dto.RequisitionMetaData;
 import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.dao.RequisitionDao;
-import com.galbern.req.jpa.entities.ApprovalStatus;
-import com.galbern.req.jpa.entities.Item;
-import com.galbern.req.jpa.entities.Requisition;
+import com.galbern.req.jpa.dao.StageDao;
+import com.galbern.req.jpa.entities.*;
 import com.galbern.req.service.RequisitionService;
 import com.galbern.req.utilities.ExcelUtil;
 import com.google.gson.Gson;
@@ -34,6 +34,8 @@ public class RequisitionBO implements RequisitionService {
     @Autowired
     private RequisitionDao requisitionDao;
     @Autowired
+    private StageDao stageDao;
+    @Autowired
     private ItemServiceBO itemServiceBO;
     @Autowired
     private MailService mailService;
@@ -45,26 +47,27 @@ public class RequisitionBO implements RequisitionService {
     @Retryable(value = {DataAccessResourceFailureException.class,
             TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public Requisition createRequisition(Requisition requisition) throws IOException, MessagingException {
-        try{
+        try {
 //            return requisitionDao.save(requisition);
             return requisitionDao.saveAndFlush(requisition);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             LOGGER.error("[REQUISITION-CREATION-FAILURE] - failed to persist a requisition {}", new Gson().toJson(requisition).replaceAll("[\r\n]+", ""), ex);
             mailService.sendGcwMail(String.format("Requisition-%s creation failed {}\n{}", requisition.getId()),
-                    String.format("Hello {},\n\nIt looks like your Requisition totalling UGX %s has failed to execute!\n{}\n You mau kindly try again!!",requisition.getRequester().getFirstName(), this.computeRequisitionAmount(requisition), new Gson().toJson(requisition)),
-                    Arrays.asList(requisition.getRequester().getEmail()) ,null);
+                    String.format("Hello {},\n\nIt looks like your Requisition totalling UGX %s has failed to execute!\n{}\n You mau kindly try again!!", requisition.getRequester().getFirstName(), this.computeRequisitionAmount(requisition), new Gson().toJson(requisition)),
+                    Arrays.asList(requisition.getRequester().getEmail()), null);
             throw new RequisitionExecutionException("failed to persist requisition", ex);
         } finally { // still slow reactor shall be used to fix this
+            // be sure was successfully created.. no exception
             approvalBO.createRequisition(requisition);
         }
     }
 
     @Retryable(value = {DataAccessResourceFailureException.class,
             TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
-    public Requisition findRequisitionById(Long id){
+    public Requisition findRequisitionById(Long id) {
         try {
             return requisitionDao.findById(id).get();
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.debug(" exception fetching Requisition data");
             throw new RuntimeException(" didn't fetch requisition with ID" + id, e);
         }
@@ -72,7 +75,7 @@ public class RequisitionBO implements RequisitionService {
 
     @Retryable(value = {DataAccessResourceFailureException.class, TransactionSystemException.class, CannotCreateTransactionException.class},
             maxAttempts = 2, backoff = @Backoff(delay = 500))
-    public Requisition updateRequisition(Requisition requisition){
+    public Requisition updateRequisition(Requisition requisition) {
         try {
             Long id = requisition.getId();
             Optional<Requisition> former = requisitionDao.findById(id);
@@ -86,7 +89,7 @@ public class RequisitionBO implements RequisitionService {
                         .stage(requisition.getStage());
             }
             return requisitionDao.save(newRequisition);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             LOGGER.error("REQUISITION-UPDATE-FAILURE - failed to update {}", requisition.getId());
             throw ex;
         }
@@ -94,12 +97,13 @@ public class RequisitionBO implements RequisitionService {
 
     @Retryable(value = {DataAccessResourceFailureException.class,
             TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
-    public String deleteRequisition(Long id){
+    public String deleteRequisition(Long id) {
         Optional<Requisition> requisition = requisitionDao.findById(id);
-        if(requisition.isPresent()){
+        if (requisition.isPresent()) {
             requisitionDao.deleteById(id);
-            return id +" successfully deleted";
-        };
+            return id + " successfully deleted";
+        }
+        ;
         return "not deleted";
     }
 
@@ -111,22 +115,22 @@ public class RequisitionBO implements RequisitionService {
                                               ApprovalStatus approvalStatus,
                                               Date submissionDate) {
         try {
-            if (null==stageIds && null==projectIds && null==requesterIds && null==approvalStatus && null==submissionDate){
+            if (null == stageIds && null == projectIds && null == requesterIds && null == approvalStatus && null == submissionDate) {
                 LOGGER.info("FETCHING ALL REQUISITIONS");
-                return determineRequisitions("ALL", null, null, null, null, null);}
-            else if (null!=stageIds && null==projectIds && null==requesterIds && null==approvalStatus && null==submissionDate){
+                return determineRequisitions("ALL", null, null, null, null, null);
+            } else if (null != stageIds && null == projectIds && null == requesterIds && null == approvalStatus && null == submissionDate) {
                 return determineRequisitions("STAGES", stageIds, projectIds, requesterIds, approvalStatus, submissionDate);
-            }  else if (null==stageIds && null!=projectIds && null==requesterIds && null==approvalStatus && null==submissionDate){
+            } else if (null == stageIds && null != projectIds && null == requesterIds && null == approvalStatus && null == submissionDate) {
                 return determineRequisitions("PROJECTS", stageIds, projectIds, requesterIds, approvalStatus, submissionDate);
-            } else if (null==stageIds && null==projectIds && null!=requesterIds && null==approvalStatus && null==submissionDate) {
+            } else if (null == stageIds && null == projectIds && null != requesterIds && null == approvalStatus && null == submissionDate) {
                 return determineRequisitions("REQUESTERS", stageIds, projectIds, requesterIds, approvalStatus, submissionDate);
-            } else if (null==stageIds && null==projectIds && null==requesterIds && null!=approvalStatus && null==submissionDate){
+            } else if (null == stageIds && null == projectIds && null == requesterIds && null != approvalStatus && null == submissionDate) {
                 return determineRequisitions("APPROVALSTATUS", stageIds, projectIds, requesterIds, approvalStatus, submissionDate);
-            }else if (null==stageIds && null==projectIds && null==requesterIds && null==approvalStatus && null!=submissionDate){
+            } else if (null == stageIds && null == projectIds && null == requesterIds && null == approvalStatus && null != submissionDate) {
                 return determineRequisitions("SUBMISSIONDATE", stageIds, projectIds, requesterIds, approvalStatus, submissionDate);
             }
 
-        } catch ( Exception e){
+        } catch (Exception e) {
             LOGGER.debug("exception in ", getClass().getName(), e);
             throw new RequisitionExecutionException(" exception fetching requisitions from the database");
         }
@@ -135,47 +139,54 @@ public class RequisitionBO implements RequisitionService {
 
     }
 
-    List<Requisition> determineRequisitions( String determinant,List<Long> stageIds,
-                                             List<Long> projectIds,
-                                             List<Long> requesterIds,
-                                             ApprovalStatus approvalStatus,
-                                             Date submissionDate){
+    List<Requisition> determineRequisitions(String determinant, List<Long> stageIds,
+                                            List<Long> projectIds,
+                                            List<Long> requesterIds,
+                                            ApprovalStatus approvalStatus,
+                                            Date submissionDate) {
         try {
-            switch(determinant){
-                case "ALL": return requisitionDao.findAll();
-                case "STAGES": return requisitionDao.findRequisitionsByStageIdIn(stageIds);
-                case "PROJECTS": return requisitionDao.findRequisitionsByStageProjectIdIn(projectIds);
-                case "REQUESTERS": return requisitionDao.findRequisitionsByRequesterIdIn(requesterIds);
-                case "APPROVALSTATUS": return requisitionDao.findRequisitionsByApprovalStatus(approvalStatus);
-                case "SUBMISSIONDATE": return requisitionDao.findRequisitionsByRequiredDate(submissionDate);// rectify
-                default: return requisitionDao.findAll();
-                }
-        } catch (Exception e){
+            switch (determinant) {
+                case "ALL":
+                    return requisitionDao.findAll();
+                case "STAGES":
+                    return requisitionDao.findRequisitionsByStageIdIn(stageIds);
+                case "PROJECTS":
+                    return requisitionDao.findRequisitionsByStageProjectIdIn(projectIds);
+                case "REQUESTERS":
+                    return requisitionDao.findRequisitionsByRequesterIdIn(requesterIds);
+                case "APPROVALSTATUS":
+                    return requisitionDao.findRequisitionsByApprovalStatus(approvalStatus);
+                case "SUBMISSIONDATE":
+                    return requisitionDao.findRequisitionsByRequiredDate(submissionDate);// rectify
+                default:
+                    return requisitionDao.findAll();
+            }
+        } catch (Exception e) {
             throw new RequisitionExecutionException(e);
         }
     }
 
-    public BigDecimal computeRequisitionAmount(Long id){
+    public BigDecimal computeRequisitionAmount(Long id) {
         try {
-            List<Item> items = itemServiceBO.findItems(id,null,null,null);
-            items.forEach(i -> System.out.println(i.getPrice()+ " " + i.getQuantity()));
+            List<Item> items = itemServiceBO.findItems(id, null, null, null);
+            items.forEach(i -> System.out.println(i.getPrice() + " " + i.getQuantity()));
             return items.stream()
                     .map(item -> item.getQuantity().multiply(item.getPrice()))
                     .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-        }catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("[compute RequisitionAmount Failure] for {} Req id: ", id);
             throw e;
         }
     }
 
-    public BigDecimal computeRequisitionAmount(Requisition requisition){
+    public BigDecimal computeRequisitionAmount(Requisition requisition) {
         try {
             List<Item> items = requisition.getItems();
-            items.forEach(i -> System.out.println(i.getPrice()+ " " + i.getQuantity()));
+            items.forEach(i -> System.out.println(i.getPrice() + " " + i.getQuantity()));
             return items.stream()
                     .map(item -> item.getQuantity().multiply(item.getPrice()))
                     .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-        }catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("[compute RequisitionAmount Failure] for {} Req id: ", requisition.getId());
             throw e;
         }
@@ -187,15 +198,15 @@ public class RequisitionBO implements RequisitionService {
             if (approvalStatus.equals(ApprovalStatus.REJECTED)) {
                 former.setApprovalStatus(ApprovalStatus.REJECTED);
             } else if (!approvalStatus.equals(ApprovalStatus.REJECTED)) {
-            former.setApprovalStatus(
-                    former.getApprovalStatus().equals(ApprovalStatus.RECEIVED)? ApprovalStatus.AUTHORIZED : ApprovalStatus.APPROVED
-            );
+                former.setApprovalStatus(
+                        former.getApprovalStatus().equals(ApprovalStatus.RECEIVED) ? ApprovalStatus.AUTHORIZED : ApprovalStatus.APPROVED
+                );
             }
 
             LOGGER.info("REQUISITION-FETCHED-FOR-APPROVAL/REJECTION id:-   {} set to: {}", former.getId(), approvalStatus); // new Gson().toJson(former) fix this
             requisitionDao.save(former);
             return former;
-        } catch (Exception ex){
+        } catch (Exception ex) {
             LOGGER.error("REQUISITION-APPROVAL-FAILURE - failed to update  {}", requisitionId);
             throw ex;
         }
@@ -207,10 +218,28 @@ public class RequisitionBO implements RequisitionService {
     public List<Requisition> findAllRequisitions() {
         try {
             LOGGER.info("fetching all the requisitions");
-        return requisitionDao.findAll(Sort.by("createdAt").descending());
+            return requisitionDao.findAll(Sort.by("createdAt").descending()); // tbd why?
 //            return requisitionDao.findAll();
-        } catch( Exception e){
+        } catch (Exception e) {
             LOGGER.error("EXCEPTION FETCHING ALL REQUISITIONS :: {}", e.getCause(), e);
+            throw e;
+        }
+    }
+
+    @Retryable(value = {DataAccessResourceFailureException.class,
+            TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
+    @Override
+    public RequisitionMetaData getRequisitionMetaData(Long id) {
+        try {
+            Stage stage = requisitionDao.getStageId(id);
+            Project project = stageDao.getProject(id);
+            List<Requisition> requisitions = requisitionDao.findRequisitionsByStageIdIn(List.of(stage.getId()));
+            BigDecimal stageProvisionalSum =
+                    requisitions.stream().flatMap(r -> r.getItems().stream()).map(item -> item.getQuantity().multiply(item.getPrice())).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+            LOGGER.debug(" TOTAL SUM :: {}", stageProvisionalSum);
+            return RequisitionMetaData.builder().stageName(stage.getName()).stageBudget(stage.getBudget()).projectName(project.getName()).stageProvisionalSum(stageProvisionalSum).build();
+        } catch (Exception e) {
+            LOGGER.error("EXCEPTION FETCHING REQUISITION METADATA :: {}", e.getCause(), e);
             throw e;
         }
     }

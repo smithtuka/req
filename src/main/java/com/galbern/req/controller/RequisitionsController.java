@@ -1,13 +1,10 @@
 package com.galbern.req.controller;
 
-import com.galbern.req.dto.RequisitionStageDto;
+import com.galbern.req.dto.RequisitionMetaData;
 import com.galbern.req.exception.RequisitionExecutionException;
-import com.galbern.req.jpa.dao.StageDao;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
-import com.galbern.req.jpa.entities.Stage;
 import com.galbern.req.service.BO.ApprovalBO;
-import com.galbern.req.service.BO.RequisitionBO;
 import com.galbern.req.service.RequisitionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -168,6 +165,19 @@ public class RequisitionsController {
             LOGGER.error("error handleApproval in handler", ex);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ApiOperation(value = "getRequisitionMetaData", nickname = "getRequisitionMetaData",
+            notes = "getRequisitionMetaData")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS", response = String.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = RequisitionMetaData.class)
+    })
+    @GetMapping("/metadata/{id}")
+    public ResponseEntity<RequisitionMetaData> getRequisitionMetaData(@PathVariable Long id) {
+        RequisitionMetaData results = requisitionBO.getRequisitionMetaData(id);
+        LOGGER.info(" :: {} ", results.toString());
+        return ResponseEntity.ok(results );
     }
 
 

@@ -1,5 +1,6 @@
 package com.galbern.req.service;
 
+import com.galbern.req.dto.RequisitionMetaData;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
 
@@ -21,4 +22,6 @@ public interface RequisitionService {
     String deleteRequisition(Long requisitionId);
 
     Requisition updateRequisition(Requisition requisition);
+
+    RequisitionMetaData getRequisitionMetaData(Long id);
 }
