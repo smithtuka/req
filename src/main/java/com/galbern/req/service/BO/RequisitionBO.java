@@ -232,7 +232,10 @@ public class RequisitionBO implements RequisitionService {
     public RequisitionMetaData getRequisitionMetaData(Long id) {
         try {
             Stage stage = requisitionDao.getStageId(id);
+            LOGGER.info(" STAGE :: {}", stage.toString());
             Project project = stageDao.getProject(id);
+            LOGGER.info(" PROJECT :: {}", project.toString());
+            if(null==project.getName()) project.setName("TBD");
             List<Requisition> requisitions = requisitionDao.findRequisitionsByStageIdIn(List.of(stage.getId()));
             BigDecimal stageProvisionalSum =
                     requisitions.stream().flatMap(r -> r.getItems().stream()).map(item -> item.getQuantity().multiply(item.getPrice())).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
