@@ -234,7 +234,7 @@ public class RequisitionBO implements RequisitionService {
             Stage stage = requisitionDao.getStageId(id);
             LOGGER.info(" STAGE :: {} fetched", stage.getName());
             Project project = stageDao.getProject(id);
-            LOGGER.info(" PROJECT :: {}", project.toString());
+            LOGGER.info(" PROJECT :: {}", project.getName());
             if(null==project.getName() || null==project) project = Project.builder().name("TBD").build();
             List<Requisition> requisitions = requisitionDao.findRequisitionsByStageIdIn(List.of(stage.getId()));
             BigDecimal stageProvisionalSum =
