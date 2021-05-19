@@ -232,7 +232,7 @@ public class RequisitionBO implements RequisitionService {
     public RequisitionMetaData getRequisitionMetaData(Long id) {
         try {
             Stage stage = requisitionDao.getStageId(id);
-            LOGGER.info(" STAGE :: {} feched", stage.getName());
+            LOGGER.info(" STAGE :: {} fetched", stage.getName());
             Project project = stageDao.getProject(id);
             LOGGER.info(" PROJECT :: {}", project.toString());
             if(null==project.getName() || null==project) project = Project.builder().name("TBD").build();
