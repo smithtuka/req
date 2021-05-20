@@ -44,10 +44,16 @@ public class RequisitionBO implements RequisitionService {
     @Autowired
     private ApprovalBO approvalBO;
 
+    @Autowired
+    private StageServiceBO stageServiceBO;
+
     @Retryable(value = {DataAccessResourceFailureException.class,
             TransactionSystemException.class}, maxAttempts = 2, backoff = @Backoff(delay = 1000))
     public Requisition createRequisition(Requisition requisition) throws IOException, MessagingException {
         try {
+            Long stageId = requisition.getStage().getId();
+            Stage stage = stageServiceBO.findById(stageId);
+            requisition.setStage(stage);
 //            return requisitionDao.save(requisition);
             return requisitionDao.saveAndFlush(requisition);
         } catch (Exception ex) {

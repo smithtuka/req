@@ -67,11 +67,12 @@ public class EmailUtils {
             recipientEmails.forEach(mailAddress -> {
                 try {
                     message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailAddress));
+                    message.setSubject(subjectText);
                     if(null!=file && file.exists() && file.isFile()){ sendMultipartMail(message,
                             file,
                             messageText);}
                     else{
-                        message.setSubject(subjectText);
+//                        message.setSubject(subjectText);
                         message.setText(messageText);
                         Transport.send(message);
                         LOGGER.info("Sent from Gmail messages successfully....{}", recipientEmails.toString());

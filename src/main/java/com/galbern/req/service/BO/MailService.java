@@ -20,13 +20,13 @@ public class MailService {
 
     public static Logger LOGGER = LoggerFactory.getLogger(MailService.class);
 
-    public static final String DEFAULT_CC = "rms.galbern@gmail.com"; // externalize
+    public static final String DEFAULT_CC = "rms.galbern@gmail.com"; // externalize -- pick
     @Autowired
     private EmailUtils emailUtils;
 
     @Retryable(value = Exception.class, maxAttempts = 4, backoff = @Backoff(delay = 500))
     public String sendGcwMail(String subject, String body, List<String> recipients, File file) throws MessagingException, IOException {
-        LOGGER.info("[GCW-MAIL-SERVICE-MAIN] -- starting  GCW MAIN Mailer ...");
+        LOGGER.info("[GCW-MAIL-SERVICE-MAIN] -- starting  GCW MAIN Mailer ... SUBJECT :: {}", subject);
         body = String.format("\n" + body + "%s", "\n\nregards,\nTeam GCW-RMS");
         List<String> allRecipients = new ArrayList<>(recipients);
         allRecipients.add(DEFAULT_CC);

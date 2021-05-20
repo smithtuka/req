@@ -37,27 +37,19 @@ public class ApprovalBO {
     public void asyncNotify(Requisition requisition) throws IOException, MessagingException {
         String subject = String.format("Requisition %s by %s %s",
                 requisition.getId(), (requisition.getRequester()).getFirstName(), requisition.getApprovalStatus());
+        LOGGER.info("Subject :: {}", subject);
         File file = excelUtil.findRequisitionFile(requisition);
-//        try{
-//            LOGGER.info("starting to notify about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""));
-            ForkJoinPool pool = new ForkJoinPool(2);
+            ForkJoinPool pool = new ForkJoinPool(1);
             pool.submit( () -> List.of(requisition).parallelStream()
             .forEach(requisition1 -> buildConsumer(requisition, subject, file).accept(requisition)));
-//            mailService.sendGcwMail(subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
-//                    String.format("%s", requisitionBO.computeRequisitionAmount(requisition.getId())),
-//                            Arrays.asList(requisition.getRequester().getEmail()), file);
-//        } catch (MessagingException | IOException e) {
-//            LOGGER.error("Exception notifying about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""), e);
-//            throw e;
-//        }
     }
 
     private Consumer buildConsumer(Requisition requisition, String subject, File file) {
         return request -> {
-            LOGGER.info("sending email");
+            LOGGER.info("sending email. subject :: {}", subject);
             try{
-                mailService.sendGcwMail(subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
-                        String.format("%s", requisitionBO.computeRequisitionAmount(requisition.getId())),
+                mailService.sendGcwMail("RMS "+ subject, //"%,.2f", amount.setScale(2, RoundingMode.DOWN)
+                        String.format(" Amount :: UGX %s", requisitionBO.computeRequisitionAmount(requisition.getId())), // %d ? instead
                         Arrays.asList(requisition.getRequester().getEmail()), file);
             } catch (MessagingException | IOException e) {
                 LOGGER.error("Exception notifying about requisition status for: {}", new Gson().toJson(requisition).replaceAll("[\n\r]+",""), e);
