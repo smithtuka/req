@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RequisitionBO implements RequisitionService {
@@ -244,7 +245,8 @@ public class RequisitionBO implements RequisitionService {
             Project project = stage.getProject();
             LOGGER.info(" PROJECT :: {}", project.getName());
             if (null == project.getName()) project = Project.builder().name("TBD").build();
-            List<Requisition> requisitions = requisitionDao.findRequisitionsByStageIdIn(List.of(stage.getId()));
+            List<Requisition> requisitions = requisitionDao.findRequisitionsByStageIdIn(List.of(stage.getId()))
+                    .stream().filter(r->r.getApprovalStatus()==ApprovalStatus.APPROVED).collect(Collectors.toList()); // only the approved ones
             BigDecimal stageProvisionalSum =
                     requisitions.stream().flatMap(r -> r.getItems().stream()).map(item -> item.getQuantity().multiply(item.getPrice())).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
             LOGGER.debug(" TOTAL SUM :: {}", stageProvisionalSum);
