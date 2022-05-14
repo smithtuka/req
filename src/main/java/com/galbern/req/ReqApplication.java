@@ -43,7 +43,7 @@ public class ReqApplication {
 
 	@Scheduled(cron = "0 0/1 * * * ?")
 	public void logMessage(){
-		LOGGER.info("[GCW-RMS LIVE] "  + Calendar.getInstance().getTime());
+		LOGGER.info("[GCW-RMS is LIVE] "  + Calendar.getInstance().getTime());
 	}
 
 }
