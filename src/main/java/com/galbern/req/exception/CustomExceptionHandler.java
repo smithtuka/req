@@ -4,6 +4,7 @@ package com.galbern.req.exception;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -25,9 +26,8 @@ import java.util.List;
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value={AddressNotFoundException.class})
-    protected ResponseEntity<Object> handleNotFoundException(MethodArgumentNotValidException exception, WebRequest request){
-        // populate -- double check below
-        String body = exception.getParameter().getParameterName() + " not found";
+    protected ResponseEntity<Object> handleNotFoundException(AddressNotFoundException exception, WebRequest request){
+        String body = exception.getMessage();
         return handleExceptionInternal(exception, body, new HttpHeaders(), HttpStatus.NOT_FOUND,request);
     }
 
@@ -38,7 +38,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
-            HttpStatus status,
+            HttpStatusCode status,
             WebRequest request) {
         List<String> errors = new ArrayList<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
@@ -62,7 +62,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex, HttpHeaders headers,
-            HttpStatus status, WebRequest request) {
+            HttpStatusCode status, WebRequest request) {
         String error = ex.getParameterName() + " parameter is missing";
 
         ApiError apiError =
@@ -112,7 +112,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 //    @ExceptionHandler(NoHandlerFoundException.class)
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(
-            NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+            NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         String error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
 
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), error);
@@ -126,7 +126,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
         HttpRequestMethodNotSupportedException ex,
         HttpHeaders headers,
-        HttpStatus status,
+        HttpStatusCode status,
         WebRequest request) {
     StringBuilder builder = new StringBuilder();
     builder.append(ex.getMethod());
@@ -145,7 +145,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(
         HttpMediaTypeNotSupportedException ex,
         HttpHeaders headers,
-        HttpStatus status,
+        HttpStatusCode status,
         WebRequest request) {
     StringBuilder builder = new StringBuilder();
     builder.append(ex.getContentType());
