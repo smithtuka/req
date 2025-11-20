@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.jpa.repository.Temporal;
 
 import jakarta.persistence.*;
 import java.util.Date;
@@ -23,7 +22,7 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Comment { // notifications in front-end
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String narration;
     @Basic // Temporal
