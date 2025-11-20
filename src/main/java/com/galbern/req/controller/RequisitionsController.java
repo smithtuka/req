@@ -1,10 +1,11 @@
 package com.galbern.req.controller;
 
+import com.galbern.req.dto.RequisitionMetaData;
 import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
 import com.galbern.req.service.BO.ApprovalBO;
-import com.galbern.req.service.BO.RequisitionBO;
+import com.galbern.req.service.RequisitionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -30,7 +31,7 @@ public class RequisitionsController {
 
     public static Logger LOGGER = LoggerFactory.getLogger(RequisitionsController.class);
     @Autowired
-    private RequisitionBO requisitionBO;
+    private RequisitionService requisitionBO;
     @Autowired
     private ApprovalBO approvalBO;
 
@@ -54,7 +55,7 @@ public class RequisitionsController {
     public ResponseEntity<Requisition> makeRequisition(@RequestBody Requisition requisition){
 
         try {
-            LOGGER.info("POST /v1/requisitions in {}", requisition.getRequester().getId());
+            LOGGER.info("POST /v1/requisitions for Requester ID :: {}", requisition.getRequester().getId());
             return new ResponseEntity<>(requisitionBO.createRequisition(requisition), HttpStatus.OK);
         } catch (Exception e){
             LOGGER.error("[REQUISITION-CREATION-FAILURE]- failed to create requisition", e);
@@ -97,6 +98,16 @@ public class RequisitionsController {
         try{
             LOGGER.info("GET /v1/requisitions {}", Thread.currentThread().getStackTrace()[1].getMethodName());
             return new ResponseEntity<>(requisitionBO.findRequisitions(stageIds, projectIds, requesterIds, approvalStatus, submissionDate), HttpStatus.OK);
+        } catch (RequisitionExecutionException ex){
+            LOGGER.error("error executing findRequisitions - GENERAL in handler", ex);
+            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<Requisition>> findAllRequisitions(){
+        try{
+            LOGGER.info("GET /v1/requisitions/all {}", Thread.currentThread().getStackTrace()[1].getMethodName());
+            return new ResponseEntity<>(requisitionBO.findAllRequisitions(), HttpStatus.OK);
         } catch (RequisitionExecutionException ex){
             LOGGER.error("error executing findRequisitions - GENERAL in handler", ex);
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
@@ -154,6 +165,19 @@ public class RequisitionsController {
             LOGGER.error("error handleApproval in handler", ex);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ApiOperation(value = "getRequisitionMetaData", nickname = "getRequisitionMetaData",
+            notes = "getRequisitionMetaData")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS", response = String.class),
+            @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = RequisitionMetaData.class)
+    })
+    @GetMapping("/metadata/{id}")
+    public ResponseEntity<RequisitionMetaData> getRequisitionMetaData(@PathVariable Long id) {
+        RequisitionMetaData results = requisitionBO.getRequisitionMetaData(id);
+        LOGGER.info(" :: {} ", results.toString());
+        return ResponseEntity.ok(results );
     }
 
 

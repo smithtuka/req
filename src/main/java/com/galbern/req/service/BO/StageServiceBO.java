@@ -1,6 +1,6 @@
 package com.galbern.req.service.BO;
 
-import com.galbern.req.dao.StageDao;
+import com.galbern.req.jpa.dao.StageDao;
 import com.galbern.req.jpa.entities.Stage;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
@@ -79,6 +79,18 @@ public class StageServiceBO {
             stageDao.deleteById(id);
         } catch (Exception e) {
             LOGGER.error("[DELETE-STAGE-FAILURE] - error deleting  stage - {}", id);
+            throw e;
+        }
+    }
+
+
+    @Retryable(value = {DataAccessResourceFailureException.class, TransactionSystemException.class, CannotCreateTransactionException.class},
+            maxAttempts = 2, backoff = @Backoff(delay = 500))
+    public List<Stage> findStagesByActive(Boolean active) {
+        try {
+            return stageDao.findStagesByIsActive(active);
+        } catch (Exception e) {
+            LOGGER.error("ERROR - FINDING ACTIVE STAGES ", e);
             throw e;
         }
     }

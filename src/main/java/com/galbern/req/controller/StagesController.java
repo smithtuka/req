@@ -1,5 +1,7 @@
 package com.galbern.req.controller;
 
+import com.galbern.req.dto.ProjectDto;
+import com.galbern.req.dto.StageDto;
 import com.galbern.req.jpa.entities.Stage;
 import com.galbern.req.service.BO.StageServiceBO;
 import io.swagger.annotations.Api;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Api(value = "controller for RMS Stages version v1", tags={"RMSV1StagesController"})
 @RestController
@@ -121,6 +124,20 @@ public class StagesController {
             return new ResponseEntity<>("successfully deleted stage : " + stageId, HttpStatus.OK);
         } catch (Exception ex) {
             LOGGER.error("error executing deleteStage in handler", ex);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/dto/{projectId}")
+    public ResponseEntity<List<StageDto>> getStagesDto(@PathVariable("projectId") String projectId) {
+        try {
+            LOGGER.info("GET /v1/Projects in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
+            return  ResponseEntity.ok(stageServiceBO.findStagesByProjectId(Long.getLong(projectId)).stream()
+                    .map(stage ->
+                            StageDto.builder().id(stage.getId()).name(stage.getName()).build()
+                    ).collect(Collectors.toList()));
+        } catch (Exception ex) {
+            LOGGER.error("error executing stage dto in handler", ex);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -31,13 +31,15 @@ public class ExcelUtil {
             return writeObjects2ExcelFile(requisition.getItems(), filePath);
         }catch (IOException e){
             LOGGER.error("[EXCEL-CREATION-FAILURE] failed to generate excel for {} ",
-                    new Gson().toJson(requisition).replaceAll("[\r\n]+",""));
+                    new Gson().toJson(requisition).replaceAll("[\r\n]+",""), e);
 
             throw e;
         }
     }
 
     public File writeObjects2ExcelFile(List<Item> items, String filePath) throws IOException {
+
+        LOGGER.info("writeObjects2ExcelFile - START");
     String[] columns = {"ID", "REMARKS", "QTY", "PRICE", "AMOUNT"};
 
     Workbook workbook = new XSSFWorkbook();
@@ -78,7 +80,7 @@ public class ExcelUtil {
         row.createCell(3).setCellValue(String.valueOf(item.getPrice()));
 
         Cell ageCell = row.createCell(3);
-        ageCell.setCellValue(String.valueOf(item.getPrice().multiply(item.getQuantity())));
+        ageCell.setCellValue(String.valueOf(item.getPrice().multiply(item.getQuantity()))); //
         ageCell.setCellStyle(amountCellStyle);
     }
 
@@ -90,6 +92,7 @@ public class ExcelUtil {
         LOGGER.info("[workbook created] - {}", workbook.getAllNames());
         fileOut.close();
         workbook.close();
+        LOGGER.info("writeObjects2ExcelFile - END");
         return new File(filePath);
     }catch (Exception e){
         LOGGER.error("[WORKBOOK-CREATION-FAILURE] - failed to create {}", filePath, e );

@@ -1,5 +1,7 @@
 package com.galbern.req.controller;
 
+import com.galbern.req.dto.ProjectDto;
+import com.galbern.req.dto.StageDto;
 import com.galbern.req.jpa.entities.Project;
 import com.galbern.req.service.BO.ProjectServiceBO;
 import io.swagger.annotations.Api;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Api(value = "controller for RMS Projects version v1", tags={"RMSV1ProjectsController"})
 @RestController
@@ -124,5 +127,29 @@ public class ProjectsController {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
+//    DTO Based
+@ApiOperation(value = "Project DTO", nickname = "",
+        notes = "proj dto", tags = " dto for projects")
+@ApiResponses({
+        @ApiResponse(code = 200, message = "SUCCESS", response = String.class),
+        @ApiResponse(code = 500, message = "INTERNAL SERVER ERROR", response = String.class)
+})
+
+@GetMapping("/dto")
+public ResponseEntity<List<ProjectDto>> getProjectDto() {
+    try {
+        LOGGER.info("GET /v1/Projects in {}", Thread.currentThread().getStackTrace()[1].getMethodName());
+        return  ResponseEntity.ok(projectServiceBO.findAllProjects().stream()
+                .map(project ->
+                        ProjectDto.builder().id(project.getId()).name(project.getName()).stages(
+                                project.getStages().stream().map(stage -> StageDto.builder().id(stage.getId()).name(stage.getName()).build()).collect(Collectors.toList())
+                        ).build()
+                ).collect(Collectors.toList()));
+    } catch (Exception ex) {
+        LOGGER.error("error executing project dto in handler", ex);
+    }
+    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+}
 
 }

@@ -8,12 +8,13 @@ CREATE TABLE USERS(ID BIGINT(3) PRIMARY KEY AUTO_INCREMENT, -- IDENTITY
                       ROLE VARCHAR(10),
                       EMAIL VARCHAR(60),
                       ADDRESS_ID BIGINT(3),
-                      PHONE VARCHAR(30)
+                      PHONE VARCHAR(30),
+                      USER_NAME VARCHAR(12)
                   );
 INSERT INTO USERS(FIRST_NAME, LAST_NAME, ROLE, ADDRESS_ID, EMAIL) VALUES
-('Smith', 'TUKA',  'ADMIN', 1, 'smithtuka@gmail.com'),
+-- ('Smith', 'TUKA',  'ADMIN', 1, 'smithtuka@gmail.com'),
 ('Brendah', 'Ashabahebwa', 'ACCOUNTANT', 2, 'rms.galbern@gmail.com'),
-('Alice', 'Nantunga',  'ADMIN', 1, 'nantunga@gmail.com'),
+-- ('Alice', 'Nantunga',  'ADMIN', 1, 'nantunga@gmail.com'),
 ('Edward', 'Muhoozi', 'CUSTOMER',4, 'rms.galbern@gmail.com'),
 ('Edwin', 'Aruho',  'CUSTOMER', 2, 'rms.galbern@gmail.com'),
 ('Brenda', 'Nyenga',  'CUSTOMER', 3, 'rms.galbern@gmail.com'),
@@ -21,19 +22,22 @@ INSERT INTO USERS(FIRST_NAME, LAST_NAME, ROLE, ADDRESS_ID, EMAIL) VALUES
 ('SuperDeal HW', 'Ltd', 'SUPPLIER', 1, 'rms.galbern@gmail.com'),
 ('Shamim and', 'Shifa', 'SUPPLIER', 2, 'rms.galbern@gmail.com'),
 ('Hardware World', 'Ltd, NTINDA', 'SUPPLIER', 1, 'rms.galbern@gmail.com');
+INSERT INTO USERS(FIRST_NAME, LAST_NAME, ROLE, ADDRESS_ID, EMAIL, USER_NAME) VALUES
+('Smith', 'TUKA',  'ADMIN', 1, 'smithtuka@gmail.com','smithtuka'),
+('Alice', 'Nantunga',  'ADMIN', 1, 'nantunga@gmail.com','nantunga');
 
 -- USERCREDENTIALS
 DROP TABLE IF EXISTS USERCREDENTIALS;
 CREATE TABLE USERCREDENTIALS(
                    USERNAME VARCHAR(30) PRIMARY KEY,
-                   PASSWORD VARCHAR(30),
-                   IS_ACTIVE BOOLEAN,
-                   USER_ID BIGINT(3)
+                   PASSWORD VARCHAR(120),
+                   ACTIVE BOOLEAN,
+                   ROLE VARCHAR(10)
 );
-INSERT INTO USERCREDENTIALS( USERNAME, PASSWORD, USER_ID, IS_ACTIVE ) VALUES
-( 'smithtuka', 'abcd1234',  1, TRUE),
-( 'breash', 'abcd1234',  2, FALSE),
-( 'nantunga', 'abcd1234', 3, TRUE);
+INSERT INTO USERCREDENTIALS( USERNAME, PASSWORD, ROLE, ACTIVE ) VALUES
+( 'smithtuka', 'abcd1234567',  'ADMIN', TRUE),
+( 'breash', 'abcd1234',  'USER', FALSE),
+( 'nantunga', '$2a$10$xdruRph9m4o7upnWq7Mu8OXH/3jw8edKG/uc1vOCM.tZ06jGjwKpG', 'ADMIN', TRUE);
 
 
 -- COMMENTS
@@ -91,7 +95,7 @@ CREATE TABLE REQUISITIONS (
             CREATED_AT TIMESTAMP
 );
 INSERT INTO REQUISITIONS(APPROVAL_STATUS, STAGE_ID, REQUIRED_DATE, REQUESTER_ID, CREATED_AT ) VALUES
-('PARTIAL',  1, now(), 1, now()),
+('AUTHORIZED',  1, now(), 1, now()),
 ('APPROVED',  2, now(), 1, now()),
 ('REJECTED',  3, now(), 1, now());
 

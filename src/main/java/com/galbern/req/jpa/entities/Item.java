@@ -35,7 +35,7 @@ public class Item {
     private User supplier;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name="requisition_id")
+    @JoinColumn(name="requisition_id")//, nullable = false
     @Fetch(FetchMode.JOIN)
     private Requisition requisition;
 
