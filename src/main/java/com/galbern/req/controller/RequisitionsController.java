@@ -4,7 +4,7 @@ import com.galbern.req.dto.RequisitionMetaData;
 import com.galbern.req.exception.RequisitionExecutionException;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
-import com.galbern.req.service.BO.ApprovalBO;
+import com.galbern.req.service.ApprovalService;
 import com.galbern.req.service.RequisitionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,7 +33,7 @@ public class RequisitionsController {
     @Autowired
     private RequisitionService requisitionBO;
     @Autowired
-    private ApprovalBO approvalBO;
+    private ApprovalService approvalBO;
 
     @ApiOperation(value = "ping", nickname = "ping", notes = "to ping")
     @ApiResponses({

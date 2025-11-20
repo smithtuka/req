@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
@@ -22,7 +23,8 @@ import java.util.function.Consumer;
 
 
 @Service
-public class ApprovalBO {
+@Profile("!firebase")
+public class ApprovalBO implements com.galbern.req.service.ApprovalService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApprovalBO.class);
     @Autowired
@@ -58,10 +60,12 @@ public class ApprovalBO {
         };
     }
 
+    @Override
     public void createRequisition(Requisition requisition) throws IOException, MessagingException {
         asyncNotify(requisition);
     }
 
+    @Override
     public String handleApproval(Long requisitionId, ApprovalStatus approvalStatus) throws IOException, MessagingException, InterruptedException {
          // execute parallel to improve response time ----
         Requisition requisition = null;

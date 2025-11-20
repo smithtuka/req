@@ -6,6 +6,7 @@ import com.galbern.req.jpa.dao.RequisitionDao;
 import com.galbern.req.jpa.dao.StageDao;
 import com.galbern.req.jpa.entities.*;
 import com.galbern.req.service.RequisitionService;
+import com.galbern.req.service.ApprovalService;
 import com.galbern.req.utilities.ExcelUtil;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.TransactionSystemException;
@@ -29,6 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Profile("!firebase")
 public class RequisitionBO implements RequisitionService {
     public static Logger LOGGER = LoggerFactory.getLogger(RequisitionBO.class);
 
@@ -43,7 +46,7 @@ public class RequisitionBO implements RequisitionService {
     @Autowired
     private ExcelUtil excelUtil;
     @Autowired
-    private ApprovalBO approvalBO;
+    private ApprovalService approvalBO;
 
     @Autowired
     private StageServiceBO stageServiceBO;
