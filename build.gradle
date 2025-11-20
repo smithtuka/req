@@ -144,19 +144,19 @@ jib {
     to {
         image = System.getProperty(
                 'jib.to.image',
-                "${registry}-docker.pkg.dev/pp-10202510/pp-images/piepay-api:latest"
+                "${registry}-docker.pkg.dev/pp-10202510/pp-images/gwc-req:latest"
         )
 
         if (project.hasProperty('dev')) {
-            image = "${registry}-docker.pkg.dev/pp-10202510/pp-images/piepay-api:latest"
+            image = "${registry}-docker.pkg.dev/pp-10202510/pp-images/gwc-req:latest"
             tags += 'dev'
         }
         if (project.hasProperty('stg')) {
-            image = "${registry}-docker.pkg.dev/pp-stg-10202510/pp-images/piepay-api:latest"
+            image = "${registry}-docker.pkg.dev/pp-stg-10202510/pp-images/gwc-req:latest"
             tags += 'stg'
         }
         if (project.hasProperty('prod')) {
-            image = "${registry}-docker.pkg.dev/pp-prod-10202510/pp-images/piepay-api:latest"
+            image = "${registry}-docker.pkg.dev/pp-prod-10202510/pp-images/gwc-req:latest"
             tags += 'prod'
         }
 
