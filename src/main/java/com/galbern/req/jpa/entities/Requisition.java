@@ -9,11 +9,11 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.*;
 
-import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;

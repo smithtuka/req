@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 public class JWTUtil {
 
-    @Value("credentials.key")
+    @Value("${credentials.key:change-me}")
     private String secretKey;
 
     public String generateToken(String username) {

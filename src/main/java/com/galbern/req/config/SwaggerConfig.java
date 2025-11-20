@@ -1,64 +1,36 @@
 package com.galbern.req.config;
 
 import com.galbern.req.constants.RmsConstants;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import springfox.documentation.builders.ParameterBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.schema.ModelRef;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.Parameter;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.ArrayList;
 
 @Configuration
-@RestController
-@EnableSwagger2
 public class SwaggerConfig {
 
-
     @Bean
-    public Docket api() {
-
-        //Adding Header
-        ParameterBuilder aParameterBuilder = new ParameterBuilder();
-        aParameterBuilder.name("USER")
-                .defaultValue("{\"firstName\":\"Swagger\", \"lastName\":\"Testing\", \"empId\":\"GCW001\"}")
-                .modelRef(new ModelRef("string"))
-                .parameterType("header")
-                .build();
-        java.util.List<Parameter> aParameters = new ArrayList<>();
-        aParameters.add(aParameterBuilder.build());
-
-        Contact contact = new Contact(RmsConstants.APP_NAME, RmsConstants.URL, "info@galbern.com>");
-
-        return new Docket(DocumentationType.SWAGGER_2)
-                .directModelSubstitute(XMLGregorianCalendar.class, String.class)
-                .select()
-                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class)) // RequestHandlerSelectors.any()
-                .paths(PathSelectors.any()) // PathSelectors.ant("/**")
-                .build()
-                .apiInfo(
-                        new ApiInfo(RmsConstants.APP_NAME, RmsConstants.APP_NAME, "v1", RmsConstants.URL, contact, "", "", new ArrayList<>()))
-                .globalOperationParameters(aParameters);
+    public OpenAPI baseOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title(RmsConstants.APP_NAME)
+                        .description("Modernized API surface for requisitions")
+                        .version("v1")
+                        .license(new License().name("Apache-2.0")));
     }
 
-    @RequestMapping(value = {"/", "/api"}, method = RequestMethod.GET)
-    public @ResponseBody
-    ModelAndView swaggerui() {
-        return new ModelAndView("redirect:swagger-ui.html");
+    /**
+     * Keep the legacy root redirect handy for quick swagger-ui access.
+     */
+    @RestController
+    static class SwaggerRedirect {
+        @GetMapping({"/", "/api"})
+        public ModelAndView swaggerui() {
+            return new ModelAndView("redirect:/swagger-ui/index.html");
+        }
     }
-
 }

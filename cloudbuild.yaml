@@ -1,0 +1,139 @@
+# Cloud Build pipeline for Cloud Run using Jib/Gradle (Java 21)
+timeout: 1200s
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+serviceAccount: piepay-runtime-${_ENV}@${PROJECT_ID}.iam.gserviceaccount.com
+
+steps:
+  # Show calculated variables
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    id: show-vars
+    args:
+      - '-ceu'
+      - |
+        set -euo pipefail
+
+        REPO_NAME="${REPO_NAME:-req}"
+        BRANCH_NAME="${BRANCH_NAME:-feature/cicd}"
+
+        _SERVICE="${REPO_NAME}-${_ENV}"
+        _IMAGE="${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}:${_ENV}-${SHORT_SHA}"
+        _RUNTIME_SA="piepay-runtime-${_ENV}@${PROJECT_ID}.iam.gserviceaccount.com"
+        _SAFE_BRANCH="$(echo "${BRANCH_NAME}" | rev | cut -d'/' -f1 | rev | tr '.' '-' | tr '[:upper:]' '[:lower:]')"
+
+        echo "_ENV=${_ENV}"
+        echo "LOCATION=${LOCATION}"
+        echo "REPO_NAME=${REPO_NAME}"
+        echo "_SERVICE=${_SERVICE}"
+        echo "_IMAGE=${_IMAGE}"
+        echo "_SAFE_BRANCH=${_SAFE_BRANCH}"
+        echo "_RUNTIME_SA=${_RUNTIME_SA:-<auto>}"
+        echo "PROJECT_ID=${PROJECT_ID}"
+        echo "SHORT_SHA=${SHORT_SHA}"
+
+  # Run tests (Java 21)
+  - name: "eclipse-temurin:21-jdk"
+    entrypoint: bash
+    id: test-java21
+    allowFailure: true
+    args:
+      - '-ceu'
+      - |
+        set -euo pipefail
+
+        echo "Running tests with Java 21..."
+
+        export SPRING_PROFILES_ACTIVE="test"
+        export LOG_LEVEL="${_LOG_LEVEL}"
+        ./gradlew --no-daemon clean test jacocoTestReport -x bootRun
+
+  # Build image with Jib
+  - name: "eclipse-temurin:21-jdk"
+    entrypoint: bash
+    id: build-image
+    args:
+      - '-ceu'
+      - |
+        set -euo pipefail
+
+        REPO_NAME="${REPO_NAME:-req}"
+        BRANCH_NAME="${BRANCH_NAME:-feature/cicd}"
+        _ENV_PROP="-P$(echo "${_ENV}" | tr '[:upper:]' '[:lower:]')"
+
+        _IMAGE="${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}:${_ENV}-${SHORT_SHA}"
+        _SAFE_BRANCH="$(echo "${BRANCH_NAME}" | rev | cut -d'/' -f1 | rev | tr '.' '-' | tr '[:upper:]' '[:lower:]')"
+
+        echo "🖼️  Building image -> ${_IMAGE}"
+        echo "    SAFE_BRANCH    -> ${_SAFE_BRANCH}"
+        echo "    _ENV_PROP      -> ${_ENV_PROP}"
+
+        ./gradlew --no-daemon jib --stacktrace \
+          -PshaTag="${SHORT_SHA}" \
+          -PbranchTag="${_SAFE_BRANCH}" \
+          -PversionTag="${_ENV}-${SHORT_SHA}" \
+          -Djib.from.image="eclipse-temurin:21-jre" \
+          -Djib.to.location="${LOCATION}" \
+          ${_ENV_PROP} \
+          -Djib.container.environment=SPRING_PROFILES_ACTIVE=cloud,LOG_LEVEL=${_LOG_LEVEL}
+
+  # Deploy to Cloud Run
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    id: deploy
+    args:
+      - '-ceu'
+      - |
+        set -euo pipefail
+
+        REPO_NAME="${REPO_NAME:-req}"
+        BRANCH_NAME="${BRANCH_NAME:-feature/cicd}"
+
+        _SERVICE="${REPO_NAME}-${_ENV}"
+        _IMAGE="${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}:${_ENV}-${SHORT_SHA}"
+        _RUNTIME_SA="piepay-runtime-${_ENV}@${PROJECT_ID}.iam.gserviceaccount.com"
+        _SAFE_BRANCH="$(echo "${BRANCH_NAME}" | rev | cut -d'/' -f1 | rev | tr '.' '-' | tr '[:upper:]' '[:lower:]')"
+        _RUNTIME_SA_EFF="${_RUNTIME_SA:-${REPO_NAME}-runtime-${_ENV}@${PROJECT_ID}.iam.gserviceaccount.com}"
+
+        echo "_ENV=${_ENV}"
+        echo "LOCATION=${LOCATION}"
+        echo "REPO_NAME=${REPO_NAME}"
+        echo "_SERVICE=${_SERVICE}"
+        echo "_IMAGE=${_IMAGE}"
+        echo "_RUNTIME_SA=${_RUNTIME_SA}"
+        echo "PROJECT_ID=${PROJECT_ID}"
+        echo "SHORT_SHA=${SHORT_SHA}"
+        echo "_SAFE_BRANCH=${_SAFE_BRANCH}"
+
+        echo "🚀 Deploying ${_SERVICE} -> ${_IMAGE}"
+        echo "   Service Account: ${_RUNTIME_SA_EFF}"
+        
+        gcloud run deploy "${_SERVICE}" \
+          --image="${_IMAGE}" \
+          --region="${LOCATION}" \
+          --platform=managed \
+          --service-account="${_RUNTIME_SA_EFF}" \
+          --port="${_PORT}" \
+          --cpu="${_CPU}" \
+          --memory="${_MEM}" \
+          --vpc-egress=all-traffic \
+          --vpc-connector="${_VPC_CONNECTOR}" \
+          --min-instances="${_MIN_INSTANCES}" \
+          --max-instances="${_MAX_INSTANCES}" \
+          --set-env-vars="SPRING_PROFILES_ACTIVE=${_ENV},LOG_LEVEL=${_LOG_LEVEL}" \
+          $( [[ "${_ALLOW_UNAUTH}" == "true" ]] && echo "--allow-unauthenticated" || echo "--no-allow-unauthenticated" ) \
+          --quiet
+
+substitutions:
+  _REPOSITORY: pp-images
+  _ENV: dev
+  _MAX_INSTANCES: "2"
+  _LOG_LEVEL: INFO
+  _MEM: 512Mi
+  _PORT: "8080"
+  _ALLOW_UNAUTH: "true"
+  _CPU: "1"
+  _MIN_INSTANCES: "0"
+  _VPC_CONNECTOR: pp-ew1-connector

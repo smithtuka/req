@@ -4,7 +4,7 @@ import com.galbern.req.dto.RequisitionMetaData;
 import com.galbern.req.jpa.entities.ApprovalStatus;
 import com.galbern.req.jpa.entities.Requisition;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;

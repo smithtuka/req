@@ -11,14 +11,12 @@ import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.io.IOException;
 import java.util.Calendar;
 
 
 @SpringBootApplication
-@EnableSwagger2
 @ComponentScan(basePackages = "com.galbern.req.*")
 @EnableRetry
 @EnableScheduling // use for notifications when delayed approval & accountability submission

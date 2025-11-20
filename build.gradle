@@ -1,0 +1,167 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.cloud.tools.jib' version '3.4.4'
+    id 'jacoco'
+}
+
+group = 'ai.api'
+version = '0.0.1-SNAPSHOT'
+description = 'api for piepay'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudGcpVersion', "4.7.2")
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'jakarta.persistence:jakarta.persistence-api'
+
+
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+    implementation 'org.apache.poi:poi-ooxml:5.3.0'
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'com.google.guava:guava:33.2.1-jre'
+    implementation 'com.amazonaws:aws-java-sdk-rds:1.12.751'
+
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'com.auth0:java-jwt:3.18.3'
+    implementation 'jakarta.mail:jakarta.mail-api:2.1.3'
+
+    implementation "io.github.resilience4j:resilience4j-reactor:2.2.0"
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:2.2.0"
+    implementation "com.fasterxml.jackson.module:jackson-module-afterburner:2.17.2"
+
+    implementation "com.google.cloud:spring-cloud-gcp-starter:${springCloudGcpVersion}"
+    implementation "com.google.cloud:spring-cloud-gcp-starter-secretmanager:${springCloudGcpVersion}"
+    implementation "com.google.cloud:spring-cloud-gcp-starter-firestore:${springCloudGcpVersion}"
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+    implementation 'io.swagger:swagger-annotations:1.6.14'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "com.google.cloud:spring-cloud-gcp-dependencies:${springCloudGcpVersion}"
+    }
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    systemProperty "spring.profiles.active", System.getProperty("spring.profiles.active", "test")
+    jvmArgs '-Djdk.instrumentation.disabled=true'
+    jacoco {
+        includes = ['ai/piepay/**']
+        excludes = ['java/**', 'jdk/**', 'sun/**']
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.named('test') {
+    finalizedBy 'jacocoTestReport'
+}
+
+tasks.register('jacocoTestReport2', JacocoReport) {
+    dependsOn tasks.named('test')
+
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir('reports/jacocoHtml'))
+    }
+
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: ['**/sun/**', '**/jdk/**', '**/java/**'])
+            })
+    )
+
+    sourceDirectories.setFrom(files('src/main/java'))
+
+    executionData.setFrom(fileTree(buildDir).include(
+            'jacoco/test.exec',
+            'jacoco/test/*.exec',
+            'jacoco/*.exec'
+    ))
+}
+
+bootRun {
+    jvmArgs = [
+            '--enable-native-access=ALL-UNNAMED',
+            '-Djdk.tls.client.protocols=TLSv1.2'
+    ]
+    systemProperties = System.properties as Map
+}
+
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre'
+    }
+
+    def registry = System.getProperty('jib.to.location', 'europe-west1')
+    to {
+        image = System.getProperty(
+                'jib.to.image',
+                "${registry}-docker.pkg.dev/pp-10202510/pp-images/piepay-api:latest"
+        )
+
+        if (project.hasProperty('dev')) {
+            image = "${registry}-docker.pkg.dev/pp-10202510/pp-images/piepay-api:latest"
+            tags += 'dev'
+        }
+        if (project.hasProperty('stg')) {
+            image = "${registry}-docker.pkg.dev/pp-stg-10202510/pp-images/piepay-api:latest"
+            tags += 'stg'
+        }
+        if (project.hasProperty('prod')) {
+            image = "${registry}-docker.pkg.dev/pp-prod-10202510/pp-images/piepay-api:latest"
+            tags += 'prod'
+        }
+
+        def shaTag = project.findProperty('shaTag')
+        if (shaTag) tags += shaTag
+
+        def branchTag = project.findProperty('branchTag')
+        if (branchTag) tags += branchTag
+
+        def versionTag = project.findProperty('versionTag')
+        if (versionTag) tags += versionTag
+
+        println "tags: ${tags}, image: ${image}"
+
+    }
+}
