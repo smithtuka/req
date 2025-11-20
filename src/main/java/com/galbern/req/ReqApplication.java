@@ -1,6 +1,6 @@
 package com.galbern.req;
 
-import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -26,13 +26,13 @@ public class ReqApplication {
 	public static void main(String[] args) throws IOException {
 		SpringApplication.run(ReqApplication.class, args);
 
-	}
+    }
 
-	@Bean
-	public Hibernate5Module hibernate5Module()
-	{
-		return new Hibernate5Module();
-	}
+    @Bean
+    public Hibernate6Module hibernate6Module()
+    {
+        return new Hibernate6Module();
+    }
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
